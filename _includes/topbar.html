@@ -9,7 +9,6 @@
   {% if page.url == '/pricing' %}
   {% else %}
     <a href="{{site.baseurl}}/pricing" class="text-sm bg-pink-700 hidden md:block text-white px-3 py-1 rounded">Upgrade PRO</a>
-  {% endif %}
     <button
       onclick="downloadHTML()"
       id="download-button"
@@ -25,6 +24,7 @@
       class="cursor-pointer md:hidden w-8 h-8 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
       title="Preview"
     ><i class="fa-solid fa-eye"></i></button>
+  {% endif %}
     <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
   </div>
 </div>

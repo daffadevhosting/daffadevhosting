@@ -9,69 +9,9 @@
   {% feed_meta %}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="{{ '/assets/css/tailwind.css' | relative_url }}">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<style type="text/tailwindcss">
-    @layer utilities {
-      .glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .glassmorph {
-        background: rgba(17, 25, 40, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    }
-
-    body {
-      font-family: 'Space Grotesk', sans-serif;
-    }
-    .scrollbar-hidden {
-      scrollbar-width: none;      /* Firefox */
-      -ms-overflow-style: none;   /* IE 10+ */
-    }
-
-    .scrollbar-hidden::-webkit-scrollbar {
-      display: none;              /* Chrome, Safari */
-    }
-    #preview-modal {
-      backdrop-filter: blur(4px);
-    }
-    #preview-frame {
-      background-color: white;
-    }
-    #preview-modal.show #preview-content {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    #modal {
-      transition: opacity 300ms ease-in-out;
-    }
-    #edit-box,
-    #code-wrapper {
-      transition: opacity 0.3s ease;
-    }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .popular-badge {
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-  </style>
+  
 <!-- Highlight.js CSS theme -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <!-- Highlight.js library -->

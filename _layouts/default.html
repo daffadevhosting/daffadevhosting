@@ -17,11 +17,16 @@ layout: null
           {{content}}
         {% include footer.html %}
       </main>
+        {% include chatContainer.html %}
         {% include faqModal.html %}
     <!-- Global Alert Container -->
     <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
       {% include scripts/gsap-assemble.html %}
       {% if page.extra_scripts %}{{ page.extra_scripts }}{% endif %}
+      <!-- Tombol Chat -->
+      <button id="chat-toggle" class="fixed bottom-6 right-6 z-50 bg-gradient-to-br from-indigo-600 to-purple-700 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white text-2xl hover:scale-110 transition">
+        <i class="fas fa-comment-dots"></i>
+      </button>
     </body>
 <script>
 function globalAlert(message = "Terjadi sesuatu!", type = "info", duration = 5000) {

@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@layer utilities {
+      .glass {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glassmorph {
+        background: rgba(17, 25, 40, 0.5);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+        
+body {
+  font-family: 'Poppins', sans-serif;
+}
+        
+.chat-container {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.message-box {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+}       
+.command-btn:hover {
+  transform: translateY(-2px);
+}
+.command-btn:active {
+  transform: translateY(0);
+}
+.assistant-avatar {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #6b46c1;
+}
+.scrollbar-hidden {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE 10+ */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari */
+}
+#preview-modal {
+  backdrop-filter: blur(4px);
+}
+#preview-frame {
+  background-color: white;
+}
+#preview-modal.show #preview-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+#modal {
+  transition: opacity 300ms ease-in-out;
+}
+#edit-box,
+#code-wrapper {
+  transition: opacity 0.3s ease;
+}
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+.popular-badge {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.chat-container .message-box {
+  background-color: #23272f; /* lebih soft dari hitam */
+}

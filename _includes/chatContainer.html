@@ -1,0 +1,125 @@
+<!-- Chat Container -->
+<div id="chat-container"
+  class="hidden fixed sm:bottom-20 sm:right-6 sm:w-[380px] sm:h-auto sm:rounded-2xl w-screen h-screen md:top-4 md:right-4 z-[60] bg-[#1a1d22] border border-gray-700 text-white shadow-2xl backdrop-blur-md flex flex-col overflow-hidden">
+
+  <!-- Chat Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white flex items-center">
+    <div class="assistant-avatar w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+      <i class="fas fa-robot text-purple-600 text-xl"></i>
+    </div>
+    <div>
+      <h2 class="font-bold">L Y Я A</h2>
+      <p class="text-xs opacity-80">Personal Assistant</p>
+    </div>
+    <div class="ml-auto flex space-x-2">
+      <button id="chatToggle" class="text-white cursor-pointer text-xl ml-auto">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800">
+    <div class="message-box rounded-2xl p-4 bg-white shadow-md">
+      <div class="flex items-start mb-2">
+        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+          <i class="fas fa-robot text-purple-600 text-sm"></i>
+        </div>
+        <div>
+          <div class="font-medium text-purple-800">L Y Я A</div>
+          <div class="text-xs text-gray-500"><i class="far fa-clock mr-1"></i> Just now</div>
+        </div>
+      </div>
+      <div class="pl-10 space-y-3">
+        <p>Selamat pagi 🌞! Saya <span class="font-bold text-purple-600">L Y Я A</span>, siap bantu kamu hari ini.</p>
+        <p>Ingin upgrade akun ?</p>
+
+        <div>
+          <p class="text-sm text-gray-600 mb-2 flex items-center">
+            <i class="fas fa-compass mr-2 text-purple-500"></i>
+            Kamu bisa coba perintah ini:
+          </p>
+
+          <div class="space-y-2">
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">1</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">pricelist</span> → untuk lihat daftar harga</span>
+            </button>
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">2</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">halo</span> atau <span class="text-purple-700">L Y Я A</span> → untuk menyapa aku</span>
+            </button>
+            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
+                <span class="text-purple-700 text-xs font-bold">3</span>
+              </div>
+              <span class="font-medium">Ketik <span class="text-purple-700">bantuan</span> → untuk menampilkan panduan lengkap</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="border-t p-4 bg-white">
+    <div class="relative">
+      <input 
+        type="text" 
+        placeholder="Ketik pesan Anda..." 
+        class="w-full py-3 px-4 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      >
+      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center">
+        <i class="fas fa-paper-plane text-sm"></i>
+      </button>
+    </div>
+    <div class="flex justify-between mt-2 text-xs text-gray-500">
+      <div>
+        <button class="hover:text-purple-600"><i class="fas fa-microphone mr-1"></i> Voice</button>
+      </div>
+      <div>
+        <button class="hover:text-purple-600"><i class="fas fa-image mr-1"></i> Gallery</button>
+        <button class="hover:text-purple-600 ml-3"><i class="fas fa-attach mr-1"></i> File</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const chatBtn = document.getElementById("chat-toggle");
+  const closeBtn = document.getElementById("chatToggle");
+  const chatBox = document.getElementById("chat-container");
+  let isChatOpen = false;
+
+  function openChat() {
+    chatBox.classList.remove("hidden");
+    gsap.fromTo(chatBox, 
+      { opacity: 0, y: 100, scale: 0.95 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }
+    );
+    isChatOpen = true;
+  }
+
+  function closeChat() {
+    gsap.to(chatBox, {
+      opacity: 0, y: 100, scale: 0.95, duration: 0.3, ease: "power2.in",
+      onComplete: () => chatBox.classList.add("hidden")
+    });
+    isChatOpen = false;
+  }
+
+  if (chatBtn) {
+    chatBtn.addEventListener("click", () => isChatOpen ? closeChat() : openChat());
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeChat);
+  }
+});
+</script>
