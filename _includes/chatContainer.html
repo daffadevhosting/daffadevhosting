@@ -123,3 +123,87 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+
+<script>
+const API_URL = "https://api-ai.d-adityadwiputraramadhan.workers.dev/";
+
+const chatContainer = document.querySelector("#chat-container");
+const chatInput = chatContainer.querySelector("input[type='text']");
+const chatMessages = chatContainer.querySelector(".overflow-y-auto");
+
+function appendMessage(role, content, isLoading = false) {
+  const bubble = document.createElement("div");
+  bubble.className = `my-2 px-4 py-3 rounded-2xl text-sm max-w-[80%] whitespace-pre-wrap ${
+    role === "user"
+      ? "ml-auto bg-purple-600 text-white"
+      : "mr-auto bg-white text-gray-800"
+  }`;
+
+  if (isLoading) {
+    bubble.innerHTML = `<span class="typing-dot animate-pulse">•••</span>`;
+  } else {
+    bubble.innerHTML = content;
+  }
+
+  chatMessages.appendChild(bubble);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return bubble;
+}
+
+async function sendMessage(message) {
+  appendMessage("user", message);
+
+  const loaderBubble = appendMessage("assistant", "...", true);
+
+  try {
+    const prompt = buildPrompt(message);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+    const aiReply = data?.result?.output || "⚠️ Maaf, tidak bisa menjawab saat ini.";
+
+    loaderBubble.remove();
+    appendMessage("assistant", formatResponse(aiReply));
+  } catch (err) {
+    console.error(err);
+    loaderBubble.remove();
+    appendMessage("assistant", "❌ Terjadi kesalahan. Silakan coba lagi.");
+  }
+}
+
+function buildPrompt(userInput) {
+  return `
+Kamu adalah L Y Я A, asisten pribadi digital dari platform UI Transformer.
+
+Berbicaralah dengan ramah dan profesional, bantu pengguna memahami fitur, menjawab pertanyaan, atau memberi semangat saat mereka bingung.
+
+Format jawaban santai namun tetap informatif. Gunakan emoji bila sesuai.
+
+User: "${userInput}"
+  `.trim();
+}
+
+function formatResponse(text) {
+  return text.replace(/\n/g, "<br>");
+}
+
+// ENTER untuk submit
+chatInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && chatInput.value.trim()) {
+    sendMessage(chatInput.value.trim());
+    chatInput.value = "";
+  }
+});
+</script>
+
+<style>
+.typing-dot {
+  font-size: 1.5rem;
+  color: #6b7280;
+}
+</style>
