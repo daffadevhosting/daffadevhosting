@@ -1,0 +1,37 @@
+<aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
+  <div class="flex justify-between items-center w-full md:block">
+    <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
+    <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
+    <button class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</button>
+  </div>
+  {% if page.url == '/' %}
+  <button class="cursor-pointer block mx-auto mt-1 md:mt-4">
+    <i class="fa-solid fa-robot text-2xl"></i>
+  </button>
+  {% else %}{% endif %}
+</aside>
+<div id="model-selector"
+  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none"
+>
+  <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
+  <div class="space-y-2 text-sm text-gray-300">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="basic" class="accent-blue-500" checked />
+      qwen1.5-0 - Element Sederhana <span class="text-yellow-500 text-xs ml-1">FREE 2x only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="medium" class="accent-blue-500" disabled />
+      llama-3.2-1b - Komponen Responsive <span class="text-yellow-500 text-xs ml-1">MEDIUM only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="advanced" class="accent-blue-500" disabled />
+      mistral-small-3.1 - Layout Modular <span class="text-yellow-500 text-xs ml-1">ADVANCE only</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="model" value="expert" class="accent-blue-500" disabled />
+      deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT only</span>
+    </label>
+  </div>
+  <button id="close-model-selector"
+    class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
+</div>

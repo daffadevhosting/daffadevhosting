@@ -1,0 +1,24 @@
+<!-- Firebase SDKs from CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "{{ site.FIREBASE_API_KEY }}",
+  authDomain: "{{ site.FIREBASE_AUTH_DOMAIN }}",
+  projectId: "{{ site.FIREBASE_PROJECT_ID }}",
+  appId: "{{ site.FIREBASE_APP_ID }}"
+};
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Export untuk digunakan di modul lain (jika diperlukan)
+        window.getAuth = () => auth;
+        window.getFirestore = () => db;
+
+const MIDTRANS_WORKER_URL = "{{ site.MIDTRANS_URL }}";
+</script>

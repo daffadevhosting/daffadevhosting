@@ -1,0 +1,17 @@
+<!-- Fullscreen Preview Modal -->
+<div id="modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+  <div class="relative w-full h-full md:w-[100%] md:h-[100%] rounded-xl overflow-hidden shadow-2xl border border-gray-700 bg-[#1a1a1a]">
+    <iframe
+      id="previewFrame"
+      class="w-full h-full rounded-xl border-0"
+      sandbox="allow-scripts"
+    ></iframe>
+    <button
+      onclick="closeModal()"
+      class="absolute top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white text-sm rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+      title="Tutup Preview"
+    >
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+  </div>
+</div>

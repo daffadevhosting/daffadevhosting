@@ -1,0 +1,249 @@
+<div id="input-panel" class="relative w-full h-full lg:w-1/2 p-4 space-y-4 overflow-auto border-b lg:border-b-0 lg:border-r border-gray-700 scrollbar-hidden">
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #3b82f6;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+</style>
+<!-- AI Thinking Box -->
+ <div class="h-[20px]">
+<div id="ai-reasoning-box" class="text-sm text-blue-300 font-medium hidden flex items-center gap-2 animate-pulse">
+  <i class="fa-solid fa-robot"></i>
+  <span id="ai-reasoning-text">AI sedang berpikir untukmu...</span>
+</div>
+</div>
+
+  <div class="relative bg-[#2A2A2A] glass h-full max-h-118 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
+  <pre class="mb-4 overflow-x-hidden text-wrap"><code id="ai-output">... (code AI response ) ...</code></pre>
+    
+  </div>
+  <div class="sticky bottom-0 bg-[#121212] border border-gray-700 rounded-xl p-4">
+    <p class="text-xs text-gray-400 text-left">
+      Model aktif: <span id="active-model-label" class="text-green-300">llama-3.2-1b</span>
+    </p>
+    <div class="relative mt-2">
+      <textarea id="prompt" class="w-full bg-[#2A2A2A] rounded-md px-2 py-2 text-sm text-white placeholder-gray-400" rows="3" placeholder="Masukkan instruksi desain..."></textarea>
+      <button
+        id="transform-button"
+        class="cursor-pointer w-8 h-8 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
+        title="Generate UI"
+      ><i class="fa-solid fa-wand-magic-sparkles"></i>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  // =================================================================
+  // KONFIGURASI & VARIABEL GLOBAL
+  // =================================================================
+  const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+  const greetingHTML = `<!doctype html>
+<html lang="id-ID">
+  <head>
+    <meta charset="UTF-8">
+    <title>UI Transformer by Lyra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
+      <style type="text/tailwindcss">
+        .text-clifford {
+            color: #da373d;
+        }
+      </style>
+  </head>
+    <body class="bg-gray-50 flex flex-col justify-center items-center min-h-screen text-center p-6">
+      <h1 class="text-3xl font-bold text-clifford mb-2">👋 Selamat datang!</h1>
+      <p class="text-gray-600 max-w-md">Tulis perintah desain atau masukkan URL website, dan aku akan bantu generate ulang tampilannya dengan Tailwind CSS ✨</p>
+      <p class="text-gray-600 max-w-md">Tapi saat ini Lyra sedang dalam perbaikan dulu, jadi belum maksimal untuk bekerja dengan baik, harap maklum yaa.. 😉️</p>
+    </body>
+</html>`;
+  
+  let reasoningVisible = false;
+
+  const MODEL_MAP = {
+    basic: { name: "qwen1.5-0", id: '@cf/qwen/qwen1.5-1.8b-chat' },
+    medium: { name: "llama-3.2-1b", id: '@cf/meta/llama-3.2-3b-instruct' },
+    advanced: { name: "mistral-small-3.1", id: '@cf/mistral/mistral-7b-instruct-v0.2-lora' },
+    expert: { name: "deepseek-r1", id: '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b' }
+  };
+
+  // =================================================================
+  // FUNGSI UTAMA
+  // =================================================================
+
+  /** Mengambil key model yang sedang dipilih dari form radio button */
+  function getSelectedModelKey() {
+    return document.querySelector('input[name="model"]:checked')?.value || "basic";
+  }
+
+  /** Memperbarui label model yang aktif di UI */
+  function updateActiveModelLabel() {
+    const key = getSelectedModelKey();
+    const label = document.getElementById("active-model-label");
+    if (label && MODEL_MAP[key]) {
+      label.textContent = MODEL_MAP[key].name;
+    }
+  }
+  
+  /** Menampilkan teks dengan efek ketikan */
+  function animateTyping(element, text) {
+    element.textContent = "";
+    let i = 0;
+    const typer = setInterval(() => {
+      element.textContent = text.slice(0, i) + "_";
+      element.scrollTop = element.scrollHeight;
+      if (i >= text.length) {
+        clearInterval(typer);
+        element.textContent = text;
+      }
+      i++;
+    }, 8);
+  }
+
+  /** Ekstrak kode HTML dari balasan mentah AI */
+  function extractHtmlFromMarkdownBlock(raw) {
+    const match = raw.match(/```html\s*([\s\S]*?)```/);
+    if (match) return match[1].trim();
+    const fallback = raw.match(/<!DOCTYPE html>[\s\S]*?<\/html>/i);
+    if (fallback) return fallback[0];
+    const partial = raw.match(/<!DOCTYPE html>[\s\S]*$/i);
+    if (partial) return partial[0];
+    return "";
+  }
+
+function updateWatermark(modelId) {
+  const box = document.getElementById("ai-model-watermark");
+  if (!box) return;
+}
+
+  /** Mengirim request ke API backend */
+async function handleTransformClick() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const outputEl = document.getElementById("ai-output");
+
+  if (!prompt) {
+    alert("Masukkan instruksi nya dulu, boss!");
+    return;
+  }
+
+  const modelKey = getSelectedModelKey();
+  const selectedModelId = MODEL_MAP[modelKey]?.id || MODEL_MAP["basic"].id;
+
+  // 🔄 Tampilkan loading info
+  const reasonText = document.getElementById("ai-reasoning-text");
+  const reasonBox = document.getElementById("ai-reasoning-box");
+
+  if (reasonText && reasonBox) {
+    reasonText.textContent = `AI ${selectedModelId.toUpperCase()} sedang bekerja untukmu...`;
+    reasonBox.classList.remove("hidden");
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt,
+        mode: "initial",
+        model: selectedModelId
+      })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || `Request gagal dengan status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const rawOutput = data.output || data.response || "";
+    const html = extractHtmlFromMarkdownBlock(rawOutput);
+    if (reasonBox) reasonBox.classList.add("hidden");
+
+    updateWatermark(selectedModelId);
+    animateTyping(outputEl, html);
+    renderAIOutput(html);
+
+const watermarkBox = document.getElementById("ai-model-watermark");
+
+if (watermarkBox) {
+  const isFree = selectedModelId.includes("qwen");
+  if (isFree) {
+    watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
+    Hasil desain lebih optimal tersedia di model Pro seperti 
+    <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
+    <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
+    watermarkBox.classList.remove("hidden");
+  } else {
+    watermarkBox.innerHTML = "";
+    watermarkBox.classList.add("hidden");
+  }
+}
+
+  } catch (err) {
+    outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
+    document.getElementById("ai-reasoning-box").classList.add("hidden");
+  }
+}
+  
+  // =================================================================
+  // EVENT LISTENERS & INISIALISASI
+  // =================================================================
+  document.addEventListener("DOMContentLoaded", () => {
+    const outputEl = document.getElementById("ai-output");
+    
+    // Tampilkan greeting awal
+    if (outputEl) animateTyping(outputEl, greetingHTML);
+    
+    // Inisialisasi pilihan model dari localStorage
+    const savedModel = localStorage.getItem("selectedModel") || "basic";
+    const radioInput = document.querySelector(`input[name="model"][value="${savedModel}"]`);
+    if (radioInput) radioInput.checked = true;
+    updateActiveModelLabel();
+
+    // Listener untuk perubahan model
+    document.querySelectorAll('input[name="model"]').forEach(radio => {
+      radio.addEventListener("change", updateActiveModelLabel);
+    });
+
+    // Listener untuk tombol utama
+    document.getElementById("transform-button").addEventListener("click", handleTransformClick);
+    
+    // --- Logika panel setting (GSAP) ---
+    const gearBtn = document.querySelector("aside .fa-robot")?.parentElement;
+    const modelSelector = document.getElementById("model-selector");
+    const closeModelBtn = document.getElementById("close-model-selector");
+    let panelVisible = false;
+
+    function toggleModelPanel(show) {
+        panelVisible = show;
+        const options = {
+            duration: 0.4,
+            opacity: show ? 1 : 0,
+            scale: show ? 1 : 0.95,
+            ease: show ? "power3.out" : "power2.in",
+            onComplete: () => {
+                if(modelSelector) modelSelector.style.pointerEvents = show ? "auto" : "none";
+            }
+        };
+        gsap.to(modelSelector, options);
+    }
+    
+    gearBtn?.addEventListener("click", () => {
+        gsap.fromTo(gearBtn.querySelector("i"), { rotate: 0 }, { rotate: 360, duration: 0.8, ease: "power2.inOut" });
+        toggleModelPanel(!panelVisible);
+    });
+
+    closeModelBtn?.addEventListener("click", () => {
+        const selectedKey = getSelectedModelKey();
+        localStorage.setItem("selectedModel", selectedKey);
+        toggleModelPanel(false);
+    });
+  });
+</script>

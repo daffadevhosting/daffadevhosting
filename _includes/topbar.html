@@ -1,0 +1,15 @@
+<div id="topbar" class="flex items-center justify-between p-4 border-b border-gray-700">
+  <div class="text-sm text-gray-400 truncate">
+    <a href="{{site.baseurl}}/">
+    <i class="fa-solid fa-code text-blue-400"></i>
+    {{site.title}} <span class="font-bold text-blue-400">(L Y Я A)</span>
+    </a>
+  </div>
+  <div class="flex items-center gap-3">
+  {% if page.url == '/pricing' %}
+  {% else %}
+    <a href="{{site.baseurl}}/pricing" class="text-sm bg-pink-700 hidden md:block text-white px-3 py-1 rounded">Upgrade PRO</a>
+  {% endif %}
+    <img src="https://placehold.co/32x32" alt="Profile" class="rounded-full w-8 h-8">
+  </div>
+</div>

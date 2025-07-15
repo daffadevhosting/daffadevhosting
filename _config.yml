@@ -1,0 +1,33 @@
+# Welcome to Jekyll!
+port: 8800
+
+# Site settings
+title: UI Generator
+description: > # this means to ignore newlines until "baseurl:"
+  UI Generator by L Y Я A - Konversi desain ke Tailwind CSS dengan AI.
+baseurl: "/generate" # the subpath of your site, e.g. /blog
+url: "https://daffadevhosting.github.io" # the base hostname & protocol for your site
+
+# Markdown settings
+markdown: kramdown
+
+# Sass settings
+sass:
+  add_charset: true
+  sass_dir: assets/sass
+  style: :compressed
+
+# Build settings
+exclude:
+  - package.json
+  - README.md
+  - CNAME
+  - assets/sass
+
+# Plugin settings
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - dotenv
+
+plugins_dir: _plugins

@@ -1,0 +1,53 @@
+name: Build and Deploy Jekyll with ENV
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+      FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      MIDTRANS_URL: ${{ secrets.MIDTRANS_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Jekyll & dependencies
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Setup Node & UglifyJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g uglify-js
+
+      - name: Minify JavaScript
+        run: |
+          mkdir -p assets
+          uglifyjs src/main.js -o assets/main.min.js -c -m
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build
+
+      - name: Copy minified JS to site
+        run: cp assets/main.min.js _site/assets/main.min.js
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site

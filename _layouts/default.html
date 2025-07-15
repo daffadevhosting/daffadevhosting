@@ -1,0 +1,23 @@
+---
+layout: null
+---
+
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: page.lang | default: 'id-ID' }}">
+
+  {% include head.html %}
+
+    <body class="bg-[#1E1E1E] text-white font-sans h-screen flex flex-col md:flex-row overflow-hidden">
+      {% include loader-ai.html %}
+      {% include sidebar.html %}
+
+      <main class="glassmorph flex-1 flex flex-col overflow-hidden">
+        {% include topbar.html %}
+          {{content}}
+        {% include footer.html %}
+      </main>
+      {% include scripts/gsap-assemble.html %}
+      {% if page.extra_scripts %}{{ page.extra_scripts }}{% endif %}
+    </body>
+
+</html>

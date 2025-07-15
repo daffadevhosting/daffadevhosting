@@ -1,0 +1,8 @@
+_site
+node_modules
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+.DS_Store
+.env
+assets/js/src

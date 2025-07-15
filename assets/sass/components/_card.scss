@@ -1,0 +1,14 @@
+@use "../base" as *;
+
+.card {
+  background: $card-bg !important;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 1.5rem;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px rgba(0, 255, 195, 0.2);
+  }
+}

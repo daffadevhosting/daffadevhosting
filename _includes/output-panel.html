@@ -1,0 +1,154 @@
+<div id="output-panel" class="w-full lg:w-full bg-[#282c34] overflow-hidden hidden md:block p-4 relative">
+  <!-- Tombol Kanan Atas -->
+  <div class="absolute top-2 right-2 flex items-center gap-2 z-10">
+    <button
+      onclick="saveEditedOutput()"
+      id="save-button"
+      class="hidden bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition"
+    ><i class="fa-solid fa-floppy-disk"></i> Simpan & Preview</button>
+
+    <button
+      onclick="toggleEditorMode()"
+      id="edit-button"
+      class="cursor-pointer w-10 h-10 text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-center font-medium rounded-full text-sm p-2"
+      title="Edit HTML"
+    ><i class="fa-solid fa-pen"></i></button>
+
+    <button
+      onclick="downloadHTML()"
+      id="download-button"
+      class="cursor-pointer w-10 h-10 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 text-center font-medium rounded-full text-sm p-2"
+      title="Download HTML"
+    >
+      <i class="fa-solid fa-download"></i>
+    </button>
+
+    <button
+      onclick="showPreview()"
+      id="preview-button"
+      class="cursor-pointer w-10 h-10 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
+      title="Preview"
+    ><i class="fa-solid fa-eye"></i></button>
+  </div>
+
+  <!-- Area Editor/Code -->
+  <div id="output-editor" class="relative h-[420px]">
+    <!-- Code (readonly mode) -->
+    <pre id="output-readonly" class="bg-[#282c34] text-sm font-mono text-green-300 p-4 h-full rounded-md overflow-y-auto overflow-x-hidden min-h-96 whitespace-pre-wrap break-words hljs text-wrap transition-opacity duration-300 scrollbar-hidden"></pre>
+
+    <!-- Textarea (edit mode) -->
+    <textarea
+      id="output-editable"
+      class="hidden h-full w-full bg-[#1e1e1e] text-green-300 font-mono text-sm p-4 mt-2 rounded-md border border-gray-700 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
+      rows="16"
+      spellcheck="false"
+    ></textarea>
+    <div id="ai-model-watermark" class="hidden mt-3 text-xs text-gray-400 italic"></div>
+  </div>
+</div>
+          {% include previewModal.html %}
+<script>
+let currentHTML = "";
+let isEditing = false;
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderAIOutput(greetingHTML);        // tampilkan sambutan
+  previewFrame.srcdoc = greetingHTML;  // render di iframe
+});
+
+function renderAIOutput(htmlString) {
+  currentHTML = htmlString;
+
+  const pre = document.getElementById("output-readonly");
+  const textarea = document.getElementById("output-editable");
+
+  pre.textContent = "";
+  let i = 0;
+
+  const typer = setInterval(() => {
+    pre.textContent = htmlString.slice(0, i++) + "_";
+    pre.scrollTop = pre.scrollHeight;
+
+    if (i > htmlString.length) {
+      clearInterval(typer);
+      pre.textContent = htmlString;
+      hljs.highlightElement(pre);
+    }
+  }, 5);
+
+  textarea.value = htmlString;
+}
+
+function downloadHTML() {
+  const content = document.getElementById("output-editable")?.value?.trim();
+  if (!content) {
+    alert("Belum ada konten HTML untuk disimpan!");
+    return;
+  }
+
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "ui-transform.html";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+// Toggle antara readonly dan editable
+function toggleEditorMode() {
+  isEditing = !isEditing;
+
+  const pre = document.getElementById("output-readonly");
+  const textarea = document.getElementById("output-editable");
+  const saveBtn = document.getElementById("save-button");
+
+  if (isEditing) {
+    pre.classList.add("hidden");
+    textarea.classList.remove("hidden");
+    saveBtn.classList.remove("hidden");
+  } else {
+    pre.classList.remove("hidden");
+    textarea.classList.add("hidden");
+    saveBtn.classList.add("hidden");
+  }
+}
+
+// Simpan hasil edit dan update preview
+function saveEditedOutput() {
+  const textarea = document.getElementById("output-editable");
+  const updatedCode = textarea.value.trim();
+  if (!updatedCode) return alert("Isi HTML tidak boleh kosong!");
+
+  currentHTML = updatedCode;
+
+  // Render ulang di preview dan pre
+  renderAIOutput(currentHTML);
+  previewFrame.srcdoc = currentHTML;
+
+  toggleEditorMode(); // kembali ke readonly
+}
+
+  // Tombol preview modal
+function showPreview() {
+  const modal = document.getElementById("modal");
+  const frame = document.getElementById("previewFrame");
+  frame.srcdoc = currentHTML;
+
+  modal.classList.remove("hidden");
+  modal.classList.remove("opacity-0");
+  modal.classList.add("opacity-100");
+}
+
+function closeModal() {
+  const modal = document.getElementById("modal");
+  modal.classList.remove("opacity-100");
+  modal.classList.add("opacity-0");
+
+  setTimeout(() => {
+    modal.classList.add("hidden");
+  }, 300); // harus sama dengan durasi transition-nya
+}
+</script>

@@ -1,0 +1,93 @@
+---
+layout: default
+title: Pricing
+permalink: /pricing
+---
+
+<div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full">
+        <!-- Pricing Cards -->
+    <div class="grid grid-cols-1 mx-auto mt-16 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <!-- Medium Card -->
+    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+        <div class="glass px-6 py-5 bg-blue-100 border-b border-blue-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-blue-800">Medium</h3>
+        </div>
+        <p class="mt-2 text-sm text-blue-600">15x generate dengan LLaMA 3B</p>
+        </div>
+        <div class="px-6 py-5">
+        <div class="text-3xl font-bold text-gray-400">Rp. 24.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>15x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: LLaMA 3B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa iklan</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="24000"
+            data-plan="medium"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    <!-- Advanced Card (Popular) -->
+    <div class="relative bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover transform scale-105 z-10 border-2 border-yellow-400 animate__animated animate__pulse">
+        <div class="absolute top-0 right-0 bg-yellow-300 text-yellow-900 px-3 py-1 text-xs font-bold rounded-bl-lg popular-badge">
+        TERPOPULER
+        </div>
+        <div class="glass px-6 py-5 bg-yellow-100 border-b border-yellow-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-yellow-800">Advanced</h3>
+        </div>
+        <p class="mt-2 text-sm text-yellow-600">25x generate dengan Mistral 7B</p>
+        </div>
+        <div class="px-6 py-5">
+        <div class="text-3xl font-bold text-gray-400">Rp. 38.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>25x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Mistral 7B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa batasan fitur</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="38000"
+            data-plan="advanced"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    <!-- Expert Card -->
+    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+        <div class="glass px-6 py-5 bg-green-100 border-b border-green-200">
+        <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="ml-2 text-xl font-semibold text-green-800">Expert</h3>
+        </div>
+        <p class="mt-2 text-sm text-green-600">50x generate dengan Deepseek R1</p>
+        </div>
+        <div class="px-6 py-5 text-gray-400">
+        <div class="text-3xl font-bold text-gray-400">Rp. 69.000</div>
+        <ul class="mt-6 space-y-3 text-gray-400">
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>50x generate per 30 hari</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Deepseek 32B</li>
+            <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Powerful reasoning & output</li>
+        </ul>
+        <button
+            class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            data-amount="69000"
+            data-plan="expert"
+        >Pilih Paket</button>
+        </div>
+    </div>
+
+    </div>
+</div>
