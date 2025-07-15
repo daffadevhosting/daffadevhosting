@@ -14,14 +14,14 @@
 }
 </style>
 <!-- AI Thinking Box -->
- <div class="h-[20px]">
+ <div class="h-[25px]">
 <div id="ai-reasoning-box" class="text-sm text-blue-300 font-medium hidden flex items-center gap-2 animate-pulse">
   <i class="fa-solid fa-robot"></i>
   <span id="ai-reasoning-text">AI sedang berpikir untukmu...</span>
 </div>
 </div>
 
-  <div class="relative bg-[#2A2A2A] glass h-full max-h-118 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
+  <div class="relative bg-[#2A2A2A] glass h-full max-h-150 md:max-h-68 overflow-x-hidden overflow-y-auto rounded-md p-4 font-mono text-sm text-gray-300 scrollbar-hidden">
   <pre class="mb-4 overflow-x-hidden text-wrap"><code id="ai-output">... (code AI response ) ...</code></pre>
     
   </div>
@@ -33,7 +33,7 @@
       <textarea id="prompt" class="w-full bg-[#2A2A2A] rounded-md px-2 py-2 text-sm text-white placeholder-gray-400" rows="3" placeholder="Masukkan instruksi desain..."></textarea>
       <button
         id="transform-button"
-        class="cursor-pointer w-8 h-8 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
+        class="cursor-pointer w-10 h-10 absolute bottom-3 right-2 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2"
         title="Generate UI"
       ><i class="fa-solid fa-wand-magic-sparkles"></i>
       </button>
@@ -129,7 +129,7 @@ async function handleTransformClick() {
   const outputEl = document.getElementById("ai-output");
 
   if (!prompt) {
-    alert("Masukkan instruksi nya dulu, boss!");
+    globalAlert("Masukkan instruksi nya dulu, boss!", "info", 3000);
     return;
   }
 
@@ -139,6 +139,7 @@ async function handleTransformClick() {
   // 🔄 Tampilkan loading info
   const reasonText = document.getElementById("ai-reasoning-text");
   const reasonBox = document.getElementById("ai-reasoning-box");
+  const isCodingMode = localStorage.getItem("codingMode") === "on";
 
   if (reasonText && reasonBox) {
     reasonText.textContent = `AI ${selectedModelId.toUpperCase()} sedang bekerja untukmu...`;
@@ -152,7 +153,8 @@ async function handleTransformClick() {
       body: JSON.stringify({
         prompt,
         mode: "initial",
-        model: selectedModelId
+        model: selectedModelId,
+        coding: isCodingMode 
       })
     });
 
@@ -170,25 +172,34 @@ async function handleTransformClick() {
     animateTyping(outputEl, html);
     renderAIOutput(html);
 
-const watermarkBox = document.getElementById("ai-model-watermark");
+    const watermarkBox = document.getElementById("ai-model-watermark");
 
-if (watermarkBox) {
-  const isFree = selectedModelId.includes("qwen");
-  if (isFree) {
-    watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
-    Hasil desain lebih optimal tersedia di model Pro seperti 
-    <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
-    <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
-    watermarkBox.classList.remove("hidden");
-  } else {
-    watermarkBox.innerHTML = "";
-    watermarkBox.classList.add("hidden");
-  }
-}
+    if (watermarkBox) {
+      const isFree = selectedModelId.includes("qwen");
+      if (isFree) {
+        watermarkBox.innerHTML = `✨ Kamu sedang menggunakan <span class="font-semibold text-blue-400">Qwen (model gratis)</span>. 
+        Hasil desain lebih optimal tersedia di model Pro seperti 
+        <span class="text-yellow-400">LLaMA</span>, <span class="text-orange-400">Mistral</span>, dan <span class="text-green-400">DeepSeek</span>.
+        <a href="/pricing" class="underline hover:text-white ml-1">Upgrade sekarang →</a>`;
+        watermarkBox.classList.remove("hidden");
+      } else {
+        watermarkBox.innerHTML = "";
+        watermarkBox.classList.add("hidden");
+      }
+    }
 
-  } catch (err) {
-    outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
-    document.getElementById("ai-reasoning-box").classList.add("hidden");
+    const promptInput = document.getElementById("prompt");
+    promptInput.classList.add("opacity-50");
+    setTimeout(() => {
+      promptInput.value = "";
+      promptInput.classList.remove("opacity-50");
+    }, 300);
+    document.getElementById("prompt").focus();
+
+
+    } catch (err) {
+      outputEl.textContent = "❌ Error saat panggil AI: " + err.message;
+      document.getElementById("ai-reasoning-box").classList.add("hidden");
   }
 }
   
@@ -216,7 +227,7 @@ if (watermarkBox) {
     document.getElementById("transform-button").addEventListener("click", handleTransformClick);
     
     // --- Logika panel setting (GSAP) ---
-    const gearBtn = document.querySelector("aside .fa-robot")?.parentElement;
+    const gearBtn = document.querySelector("aside .fa-gear")?.parentElement;
     const modelSelector = document.getElementById("model-selector");
     const closeModelBtn = document.getElementById("close-model-selector");
     let panelVisible = false;

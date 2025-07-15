@@ -1,0 +1,37 @@
+<div id="promo-banner" class="absolute hidden md:bottom-4 md:right-4 top-4 z-[9999] w-full max-w-2xl px-4">
+  <div class="bg-gradient-to-r from-blue-800 via-purple-700 to-pink-700 text-white shadow-lg rounded-lg flex items-start sm:items-center justify-between gap-4 p-4 animate__animated animate__fadeInDown">
+    <div class="flex-1 text-sm sm:text-base">
+      <strong class="text-white font-semibold">🎉 Promo Juli!</strong> Upgrade ke <span class="text-yellow-300 font-bold">Pro Medium</span> hanya <span class="text-green-300 font-bold">Rp 24.000</span> dan nikmati model AI premium.
+    </div>
+    <button onclick="dismissPromoBanner()" class="cursor-pointer text-white hover:text-red-300 transition text-xl">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+</div>
+<script>
+function showPromoBanner() {
+  const banner = document.getElementById("promo-banner");
+  if (banner) {
+    banner.classList.remove("hidden");
+    banner.classList.add("animate__fadeInUp");
+  }
+}
+
+function dismissPromoBanner() {
+  const banner = document.getElementById("promo-banner");
+  if (banner) {
+    banner.classList.add("animate__fadeOutDown");
+    setTimeout(() => banner.remove(), 500);
+  }
+}
+
+const lastSeen = localStorage.getItem("promoShownAt");
+const now = Date.now();
+if (!lastSeen || now - lastSeen > 24 * 60 * 60 * 1000) {
+  setTimeout(() => {
+    showPromoBanner();
+    localStorage.setItem("promoShownAt", now);
+  }, 30000);
+}
+</script>
+

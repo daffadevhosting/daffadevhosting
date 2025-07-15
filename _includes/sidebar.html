@@ -1,18 +1,23 @@
-<aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
+<aside id="sidebar" class="w-full md:w-20 bg-[#121212] p-4 flex align-center md:flex-col gap-6 border-b md:border-b-0 md:border-r border-gray-700">
   <div class="flex justify-between items-center w-full md:block">
     <h1 class="text-sm font-bold hidden md:block">L Y Я A</h1>
     <div class="bg-[#2A2A2A] glass text-sm rounded px-2 py-1 md:w-fit">v.2.5</div>
-    <button class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</button>
+    <a href="{{site.baseurl}}/pricing" class="text-sm bg-pink-700 md:hidden block text-white px-3 py-1 rounded">Upgrade PRO</a>
   </div>
   {% if page.url == '/' %}
-  <button class="cursor-pointer block mx-auto mt-1 md:mt-4">
-    <i class="fa-solid fa-robot text-2xl"></i>
+  <button title="Setting" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+    <i class="fa-solid fa-gear text-2xl"></i>
   </button>
   {% else %}{% endif %}
+  <button onclick="openTermsModal()" title="term & faq" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+  <i class="fa-solid fa-circle-question text-2xl"></i>
+  </button>
+  <a href="https://github.com/daffadevhosting/daffadevhosting/" target="_blank" title="Github" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+    <i class="fa-brands fa-github text-3xl"></i>
+  </a>
 </aside>
 <div id="model-selector"
-  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none"
->
+  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none">
   <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
   <div class="space-y-2 text-sm text-gray-300">
     <label class="flex items-center gap-2 cursor-pointer">
@@ -32,6 +37,51 @@
       deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT only</span>
     </label>
   </div>
+<div id="coding-mode-toggle" class="mt-4 bg-[#1E1E1E] p-3 rounded-lg border border-gray-700">
+  <label class="flex items-center text-sm text-gray-300 gap-2">
+    <input type="checkbox" id="enable-coding-mode" class="cursor-pointer accent-blue-500">
+    Mode Coding (React, Vue, JSX)
+  </label>
+  <p class="text-xs text-gray-500 mt-1">Mode ini akan membuat AI merespons dengan format kode yang lebih kompleks.</p>
+</div>
   <button id="close-model-selector"
     class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
 </div>
+<script>
+  const codingModeCheckbox = document.getElementById("enable-coding-mode");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("codingMode") || "off";
+    codingModeCheckbox.checked = saved === "on";
+
+    codingModeCheckbox.addEventListener("change", () => {
+      localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+    });
+  });
+
+  async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          model: selectedModelId,
+          mode: "initial",
+          coding: isCodingMode // ✅ dikirim ke backend
+        })
+      });
+
+      const data = await res.json();
+      console.log("✅ AI Response:", data.output);
+      return data.output;
+    } catch (err) {
+      console.error("❌ Error:", err.message);
+    }
+  }
+
+  // Contoh trigger manual:
+  // sendPrompt("buatkan halaman login react", "@cf/meta/llama-3.2-3b-instruct");
+</script>

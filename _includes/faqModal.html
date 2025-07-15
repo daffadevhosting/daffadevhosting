@@ -1,0 +1,108 @@
+<div id="termsModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 animate__animated animate__fadeIn">
+  <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-2xl shadow-xl border border-gray-700 max-w-3xl w-full p-8 relative animate__animated animate__zoomIn animate__faster">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-700">
+      <h2 class="text-3xl font-extrabold text-blue-400 drop-shadow-lg flex items-center">
+        <i class="fa-solid fa-file-contract mr-3 text-blue-300"></i> Syarat & Ketentuan
+      </h2>
+      <button onclick="closeTermsModal()" class="cursor-pointer text-gray-400 hover:text-red-500 transition-colors duration-200 text-2xl" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="space-y-8 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+      <div>
+        <h3 class="text-xl font-bold text-yellow-300 mb-3 flex items-center">
+          <i class="fa-solid fa-info-circle mr-2 text-yellow-200"></i> Ketentuan Umum
+        </h3>
+        <ul class="list-disc pl-8 text-base text-gray-300 space-y-3 leading-relaxed">
+          <li>Layanan ini memanfaatkan kecerdasan buatan untuk menghasilkan kode <strong>HTML/React/TailwindCSS</strong> yang inovatif.</li>
+          <li>Pengguna <strong>gratis</strong> mendapatkan batas 2x generasi per hari menggunakan model <strong>Qwen</strong>.</li>
+          <li>Akses ke model AI yang lebih canggih seperti <strong>Mistral</strong> & <strong>DeepSeek</strong> tersedia dengan paket berbayar.</li>
+          <li>Seluruh kode yang dihasilkan merupakan produk AI dan tidak bergaransi — <strong>peninjauan manual sangat disarankan</strong>.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-green-300 mb-3 flex items-center">
+          <i class="fa-solid fa-cogs mr-2 text-green-200"></i> Cara Menggunakan
+        </h3>
+        <ol class="list-decimal pl-8 text-base text-gray-300 space-y-3 leading-relaxed">
+          <li>Masukkan perintah desain atau komponen yang Anda inginkan pada kolom input yang tersedia.</li>
+          <li>Pilih model AI preferensi Anda melalui pengaturan (ikon gear) untuk hasil optimal.</li>
+          <li>Tekan tombol <strong>“Generate UI”</strong> dan biarkan AI kami bekerja magic-nya.</li>
+          <li>Hasilnya akan segera muncul di panel editor; Anda bisa melihat pratinjau, mengedit, atau menyimpannya.</li>
+          <li>Gunakan tombol <strong>“Download”</strong> jika Anda ingin menyimpan hasil akhir sebagai file HTML.</li>
+        </ol>
+      </div>
+
+      <div class="text-sm text-gray-500 mt-6 pt-5 border-t border-gray-700 italic text-center">
+        Dengan melanjutkan penggunaan layanan ini, Anda secara otomatis dianggap telah membaca dan menyetujui seluruh syarat & ketentuan yang berlaku di atas.
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <button onclick="closeTermsModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+        Saya Mengerti & Setuju
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom Scrollbar for Webkit browsers (Chrome, Safari) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748; /* Darker background for the track */
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4a5568; /* Slightly lighter thumb color */
+    border-radius: 10px;
+    border: 2px solid #2d3748; /* Border to create a "floating" effect */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #636b77; /* Even lighter on hover */
+  }
+
+  /* Fallback for Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin; /* "auto" or "thin" */
+    scrollbar-color: #4a5568 #2d3748; /* thumb and track color */
+  }
+</style>
+
+<script>
+  function openTermsModal() {
+    document.getElementById('termsModal').classList.remove('hidden');
+    document.getElementById('termsModal').classList.add('flex');
+    // Remove previous animation classes to allow re-triggering on subsequent opens
+    const modalContent = document.querySelector('#termsModal > div');
+    modalContent.classList.remove('animate__fadeInDown', 'animate__zoomOut');
+    modalContent.classList.add('animate__zoomIn', 'animate__faster');
+  }
+
+  function closeTermsModal() {
+    const modalContent = document.querySelector('#termsModal > div');
+    modalContent.classList.remove('animate__zoomIn');
+    modalContent.classList.add('animate__zoomOut'); // Add zoomOut animation
+
+    // Hide the modal after the animation completes
+    modalContent.addEventListener('animationend', function handler() {
+      document.getElementById('termsModal').classList.remove('flex');
+      document.getElementById('termsModal').classList.add('hidden');
+      modalContent.removeEventListener('animationend', handler); // Remove listener to prevent multiple calls
+    });
+  }
+
+  // Optional: Close modal when clicking outside
+  document.getElementById('termsModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+      closeTermsModal();
+    }
+  });
+</script>

@@ -82,7 +82,7 @@ function renderAIOutput(htmlString) {
 function downloadHTML() {
   const content = document.getElementById("output-editable")?.value?.trim();
   if (!content) {
-    alert("Belum ada konten HTML untuk disimpan!");
+    globalAlert("Belum ada konten HTML untuk disimpan!", "error", 3000);
     return;
   }
 
@@ -120,7 +120,7 @@ function toggleEditorMode() {
 function saveEditedOutput() {
   const textarea = document.getElementById("output-editable");
   const updatedCode = textarea.value.trim();
-  if (!updatedCode) return alert("Isi HTML tidak boleh kosong!");
+  if (!updatedCode) return globalAlert("Isi HTML tidak boleh kosong!", "error", 3000);
 
   currentHTML = updatedCode;
 
@@ -135,8 +135,16 @@ function saveEditedOutput() {
 function showPreview() {
   const modal = document.getElementById("modal");
   const frame = document.getElementById("previewFrame");
-  frame.srcdoc = currentHTML;
 
+  // Bikin ulang blob URL dari currentHTML
+  const blob = new Blob([currentHTML], { type: 'text/html' });
+  const blobURL = URL.createObjectURL(blob);
+
+  // Update src iframe pakai blob
+  frame.removeAttribute("srcdoc"); // clear srcdoc biar ga tabrakan
+  frame.setAttribute("src", blobURL);
+
+  // Tampilkan modal
   modal.classList.remove("hidden");
   modal.classList.remove("opacity-0");
   modal.classList.add("opacity-100");
@@ -146,6 +154,11 @@ function closeModal() {
   const modal = document.getElementById("modal");
   modal.classList.remove("opacity-100");
   modal.classList.add("opacity-0");
+
+const frame = document.getElementById("previewFrame");
+if (frame?.src?.startsWith("blob:")) {
+  URL.revokeObjectURL(frame.src); // bersihkan memory
+}
 
   setTimeout(() => {
     modal.classList.add("hidden");
