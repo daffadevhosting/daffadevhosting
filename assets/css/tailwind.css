@@ -506,6 +506,9 @@
   .max-w-\[80\%\] {
     max-width: 80%;
   }
+  .max-w-\[90\%\] {
+    max-width: 90%;
+  }
   .max-w-\[1200px\] {
     max-width: 1200px;
   }

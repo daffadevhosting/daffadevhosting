@@ -3,7 +3,7 @@
   class="hidden fixed sm:bottom-20 sm:right-6 sm:w-[380px] sm:h-auto sm:rounded-2xl w-screen h-screen md:top-4 md:left-24 z-[60] bg-[#1a1d22] border border-gray-700 text-white shadow-2xl backdrop-blur-md flex flex-col overflow-hidden">
 
   <!-- Chat Header -->
-  <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white flex items-center">
+  <div class="sticky top-0 glassmorph bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white flex items-center">
     <div class="assistant-avatar w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
       <i class="fas fa-robot text-purple-600 text-xl"></i>
     </div>
@@ -19,18 +19,18 @@
   </div>
 
   <!-- Chat Messages -->
-  <div id="output-chat" class="flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800"></div>
+  <div id="output-chat" class="glass flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800"></div>
 
   <!-- Input Area -->
-  <div class="sticky bottom-0 border-t p-4 bg-white">
+  <div class="glassmorph sticky bottom-0 border-t p-4 bg-white">
     <div class="relative">
       <input 
         id="input-chat"
         type="text" 
         placeholder="Ketik pesan Anda..." 
-        class="w-full py-3 px-4 pr-12 rounded-full border text-gray-700 border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        class="w-full py-3 px-4 pr-12 rounded-full border text-gray-400 border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
       >
-      <button class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center">
+      <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex items-center justify-center">
         <i class="fas fa-paper-plane text-sm"></i>
       </button>
     </div>
@@ -45,6 +45,206 @@
     </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.6/dist/purify.min.js"></script>
+
+<script>
+    const BACK_URL = "https://api-ai.d-adityadwiputraramadhan.workers.dev/";
+
+    const chatContainer = document.querySelector("#chat-container");
+    const chatInput = document.querySelector("#input-chat");
+    const chatMessages = document.querySelector("#output-chat");
+    const sendButton = chatContainer.querySelector("button[type='submit']");
+
+    // --- Inisialisasi & Event Listener ---
+    window.addEventListener("DOMContentLoaded", () => {
+        appendIntroMessage();
+    });
+
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".command-btn");
+        if (!btn) return;
+
+        const text = btn.innerText.match(/`(.+?)`/)?.[1] || btn.innerText;
+        chatInput.value = text.toLowerCase().split("→")[0].trim();
+        chatInput.focus();
+        if (sendButton) sendButton.click(); // Otomatis kirim setelah klik perintah
+    });
+
+    // Handle kirim & AI reply (Disesuaikan)
+    chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && chatInput.value.trim()) {
+            sendUserMessage(); // Panggil tanpa argumen, akan mengambil dari chatInput.value
+        }
+    });
+
+    if (sendButton) {
+        sendButton.addEventListener("click", () => {
+            if (chatInput.value.trim()) {
+                sendUserMessage(); // Panggil tanpa argumen
+            }
+        });
+    }
+
+    // --- Fungsi Helper untuk UI (Tidak ada perubahan di sini) ---
+
+    function getTimeGreeting() {
+        const h = new Date().getHours();
+        if (h >= 4 && h < 10) return "Pagi";
+        if (h >= 10 && h < 15) return "Siang";
+        if (h >= 15 && h < 17) return "Sore";
+        return "Malam";
+    }
+
+    function appendMessage(role, content, isLoading = false) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `flex mb-2 ${role === "user" ? "justify-end" : "justify-start"}`;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const timeGreeting = getTimeGreeting();
+
+        const bubble = document.createElement("div");
+        bubble.className = `
+            max-w-[90%] p-2 rounded-2xl shadow
+            ${role === "user"
+                ? "bg-purple-600 text-white rounded-br-none"
+                : "message-box bg-white text-gray-800 rounded-bl-none"}
+        `.trim();
+
+        if (role === "user") {
+            bubble.innerHTML = `<div class="text-sm">${content}</div>`;
+        } else {
+            bubble.innerHTML = `
+                <div class="flex items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-robot text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-purple-800">Lyra</div>
+                        <div class="text-xs text-gray-500"><i class="far fa-clock mr-1"></i> ${timeGreeting} • ${timeString}</div>
+                    </div>
+                </div>
+                <div class="pl-10 assistant-content ${isLoading ? 'text-gray-400 animate-pulse' : ''}">
+                    ${isLoading ? `<span class="typing-dot">•••</span>` : formatResponse(content)}
+                </div>
+            `;
+        }
+
+        wrapper.appendChild(bubble);
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        return bubble.querySelector(".assistant-content");
+    }
+
+    function appendIntroMessage() {
+        const hour = new Date().getHours();
+        let greetingText = "Halo";
+
+        if (hour >= 4 && hour < 10) greetingText = "Selamat pagi 🌤️";
+        else if (hour >= 10 && hour < 15) greetingText = "Selamat siang 🌞";
+        else if (hour >= 15 && hour < 17) greetingText = "Selamat sore 🌥️";
+        else greetingText = "Selamat malam 🌙";
+
+        const introHTML = `
+            <div class="message-box rounded-2xl mb-4 p-2 bg-white shadow-md max-w-[90%]">
+                <div class="flex items-start mb-2">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
+                        <i class="fas fa-robot text-purple-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-purple-800">Lyra</div>
+                        <div class="text-xs text-gray-500"><i class="far fa-clock mr-1"></i> Baru saja</div>
+                    </div>
+                </div>
+                <div class="pl-10 space-y-3">
+                    <p>${greetingText}! Saya <span class="font-bold text-purple-600">Lyra</span>, asisten digitalmu yang siap membantu.</p>
+                    <p>Ada yang bisa Lyra bantu hari ini? Jangan ragu bertanya, ya! 😊</p>
+
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2 flex items-center">
+                            <i class="fas fa-compass mr-2 text-purple-500"></i>
+                            Kamu bisa coba perintah ini:
+                        </p>
+
+                        <div class="space-y-2">
+                            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+                                <span class="font-medium">'pricelist' → untuk lihat daftar harga</span>
+                            </button>
+                            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+                                <span class="font-medium">'halo' atau 'Lyra' → untuk menyapa aku</span>
+                            </button>
+                            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
+                                <span class="font-medium">'bantuan' → untuk panduan lengkap</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex justify-start";
+        wrapper.innerHTML = introHTML;
+
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // --- Logic Pengiriman Pesan & AI ---
+
+    // PERBAIKAN: sendUserMessage tidak lagi menerima 'body' sebagai argumen
+    async function sendUserMessage() {
+        const userPrompt = chatInput.value.trim(); // Ambil nilai langsung dari input
+        chatInput.value = ""; // Kosongkan input
+        appendMessage("user", userPrompt); // Tampilkan pesan pengguna
+
+        const loader = appendMessage("assistant", "", true);
+
+        try {
+            const res = await fetch(BACK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: userPrompt }) // Hanya kirim prompt
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || `Backend error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+            const aiMessage = data?.choices?.[0]?.message;
+            const aiReply = aiMessage?.content || "Maaf, Lyra tidak bisa memberikan balasan saat ini. Silakan coba lagi nanti ya! 🙏";
+            const isLocalIntent = aiMessage?.is_local_intent || false;
+
+            if (isLocalIntent) {
+                const delay = Math.random() * (1500 - 500) + 500;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            loader.classList.remove("animate-pulse", "text-gray-400");
+            loader.innerHTML = formatResponse(aiReply);
+
+        } catch (err) {
+            console.error("Error from backend:", err);
+            loader.classList.remove("animate-pulse", "text-gray-400");
+            loader.innerHTML = "❌ Terjadi kesalahan. Mohon maaf, Lyra sedang tidak bisa merespons. Silakan coba lagi nanti ya.";
+        }
+    }
+
+    // --- Konfigurasi AI & Intent Detektor ---
+    // Logika ini sudah dipindahkan ke backend!
+    // kode INTENT_TOS_RESPONSES dan detectIntentTOS di Hapus .
+    // 🤪️
+    // --- Formatting Output ---
+    function formatResponse(text) {
+        const rawHtml = marked.parse(text);
+        return DOMPurify.sanitize(rawHtml);
+    }
+</script>
 
 <!-- Script -->
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
@@ -81,106 +281,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<script>
-const BACK_URL = "https://api-ai.d-adityadwiputraramadhan.workers.dev/";
+<style>
+    /* Tambahkan atau sesuaikan CSS Anda untuk typing indicator */
+    .typing-dot {
+        display: inline-block;
+        animation: typing 1.5s infinite;
+    }
 
-const chatContainer = document.querySelector("#chat-container");
-const chatInput = chatContainer.querySelector("input[type='text']");
-const chatMessages = chatContainer.querySelector(".overflow-y-auto");
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.5s;
+    }
 
-function appendMessage(role, content, isLoading = false) {
-  const wrapper = document.createElement("div");
-  wrapper.className = `flex mb-4 ${role === "user" ? "justify-end" : "justify-start"}`;
+    .typing-dot:nth-child(3) {
+        animation-delay: 1s;
+    }
 
-  const bubble = document.createElement("div");
-  bubble.className = `
-    max-w-[80%] rounded-2xl p-4 shadow 
-    ${role === "user"
-      ? "bg-purple-600 text-white rounded-br-none"
-      : "bg-white text-gray-800 rounded-bl-none"}
-  `;
-
-  if (isLoading) {
-    bubble.innerHTML = `<span class="typing-dot animate-pulse">•••</span>`;
-  } else {
-    bubble.innerHTML = formatResponse(content);
-  }
-
-  wrapper.appendChild(bubble);
-  chatMessages.appendChild(wrapper);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-  return bubble;
-}
-
-async function sendMessage(body) {
-  
-  appendMessage("user", body.prompt);
-
-  const loaderBubble = appendMessage("assistant", "...", true);
-
-  try {
-    const modelName = body.model || "gemma2-9b-it";
-    const promptText = body.prompt;
-
-    const payload = {
-      model: modelName,
-      messages: [
-        { role: "user", content: promptText }
-      ],
-    temperature: 0.2,
-    max_completion_tokens: 512,
-    };
-
-    const res = await fetch(BACK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    const aiReply = data?.choices?.[0]?.message?.content || "⚠️ Tidak ada balasan.";
-
-    loaderBubble.remove();
-    appendMessage("assistant", formatResponse(aiReply));
-  } catch (err) {
-    console.error(err);
-    loaderBubble.remove();
-    appendMessage("assistant", "❌ Terjadi kesalahan. Silakan coba lagi.");
-  }
-}
-
-function buildPrompt(userInput) {
-  return `
-Kamu adalah L Y Я A, asisten pribadi digital dari platform UI Transformer.
-
-Berbicaralah dengan ramah dan profesional, bantu pengguna memahami fitur, menjawab pertanyaan, atau memberi semangat saat mereka bingung.
-
-Format jawaban santai namun tetap informatif. Gunakan emoji bila sesuai.
-
-User: "${userInput}"
-  `.trim();
-}
-
-function formatResponse(text) {
-  return DOMPurify.sanitize(marked.parse(text));
-}
-
-// ENTER untuk submit
-chatInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && chatInput.value.trim()) {
-    const promptText = chatInput.value.trim();
-    chatInput.value = "";
-
-    sendMessage({
-      prompt: promptText,
-      model: "gemma2-9b-it"
-    });
-  }
-});
-</script>
+    @keyframes typing {
+        0% { opacity: 0.2; }
+        50% { opacity: 1; }
+        100% { opacity: 0.2; }
+    }
+</style>
 
 <style>
 .typing-dot {
