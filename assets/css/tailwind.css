@@ -574,6 +574,12 @@
   .justify-center {
     justify-content: center;
   }
+  .justify-end {
+    justify-content: flex-end;
+  }
+  .justify-start {
+    justify-content: flex-start;
+  }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
@@ -659,8 +665,14 @@
   .rounded-xl {
     border-radius: var(--radius-xl);
   }
+  .rounded-br-none {
+    border-bottom-right-radius: 0;
+  }
   .rounded-bl-lg {
     border-bottom-left-radius: var(--radius-lg);
+  }
+  .rounded-bl-none {
+    border-bottom-left-radius: 0;
   }
   .border {
     border-style: var(--tw-border-style);

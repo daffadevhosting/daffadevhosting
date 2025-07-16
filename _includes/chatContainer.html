@@ -19,51 +19,7 @@
   </div>
 
   <!-- Chat Messages -->
-  <div id="output-chat" class="flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800">
-    <div class="message-box rounded-2xl p-4 bg-white shadow-md">
-      <div class="flex items-start mb-2">
-        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-          <i class="fas fa-robot text-purple-600 text-sm"></i>
-        </div>
-        <div>
-          <div class="font-medium text-purple-800">L Y Я A</div>
-          <div class="text-xs text-gray-500"><i class="far fa-clock mr-1"></i> Just now</div>
-        </div>
-      </div>
-      <div class="pl-10 space-y-3">
-        <p>Selamat pagi 🌞! Saya <span class="font-bold text-purple-600">L Y Я A</span>, siap bantu kamu hari ini.</p>
-        <p>Ingin upgrade akun ?</p>
-
-        <div>
-          <p class="text-sm text-gray-600 mb-2 flex items-center">
-            <i class="fas fa-compass mr-2 text-purple-500"></i>
-            Kamu bisa coba perintah ini:
-          </p>
-
-          <div class="space-y-2">
-            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
-              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
-                <span class="text-purple-700 text-xs font-bold">1</span>
-              </div>
-              <span class="font-medium">Ketik <span class="text-purple-700">pricelist</span> → untuk lihat daftar harga</span>
-            </button>
-            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
-              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
-                <span class="text-purple-700 text-xs font-bold">2</span>
-              </div>
-              <span class="font-medium">Ketik <span class="text-purple-700">halo</span> atau <span class="text-purple-700">L Y Я A</span> → untuk menyapa aku</span>
-            </button>
-            <button class="command-btn w-full text-left flex items-center py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100 hover:shadow-md">
-              <div class="w-5 h-5 rounded-full bg-purple-200 flex items-center justify-center mr-2">
-                <span class="text-purple-700 text-xs font-bold">3</span>
-              </div>
-              <span class="font-medium">Ketik <span class="text-purple-700">bantuan</span> → untuk menampilkan panduan lengkap</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="output-chat" class="flex-1 overflow-y-auto p-4 bg-gray-50 text-gray-800"></div>
 
   <!-- Input Area -->
   <div class="sticky bottom-0 border-t p-4 bg-white">
@@ -133,40 +89,59 @@ const chatInput = chatContainer.querySelector("input[type='text']");
 const chatMessages = chatContainer.querySelector(".overflow-y-auto");
 
 function appendMessage(role, content, isLoading = false) {
+  const wrapper = document.createElement("div");
+  wrapper.className = `flex mb-4 ${role === "user" ? "justify-end" : "justify-start"}`;
+
   const bubble = document.createElement("div");
-  bubble.className = `my-2 px-4 py-3 rounded-2xl text-sm max-w-[80%] whitespace-pre-wrap ${
-    role === "user"
-      ? "ml-auto bg-purple-600 text-white"
-      : "mr-auto bg-white text-gray-800"
-  }`;
+  bubble.className = `
+    max-w-[80%] rounded-2xl p-4 shadow 
+    ${role === "user"
+      ? "bg-purple-600 text-white rounded-br-none"
+      : "bg-white text-gray-800 rounded-bl-none"}
+  `;
 
   if (isLoading) {
     bubble.innerHTML = `<span class="typing-dot animate-pulse">•••</span>`;
   } else {
-    bubble.innerHTML = content;
+    bubble.innerHTML = formatResponse(content);
   }
 
-  chatMessages.appendChild(bubble);
+  wrapper.appendChild(bubble);
+  chatMessages.appendChild(wrapper);
   chatMessages.scrollTop = chatMessages.scrollHeight;
   return bubble;
 }
 
-async function sendMessage(message) {
-  appendMessage("user", message);
+async function sendMessage(body) {
+  
+  appendMessage("user", body.prompt);
 
   const loaderBubble = appendMessage("assistant", "...", true);
 
   try {
-    const prompt = buildPrompt(message);
+    const modelName = body.model || "gemma2-9b-it";
+    const promptText = body.prompt;
+
+    const payload = {
+      model: modelName,
+      messages: [
+        { role: "user", content: promptText }
+      ],
+    temperature: 0.2,
+    max_completion_tokens: 512,
+    };
 
     const res = await fetch(BACK_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
     });
 
     const data = await res.json();
-    const aiReply = data?.result?.output || "⚠️ Maaf, tidak bisa menjawab saat ini.";
+
+    const aiReply = data?.choices?.[0]?.message?.content || "⚠️ Tidak ada balasan.";
 
     loaderBubble.remove();
     appendMessage("assistant", formatResponse(aiReply));
@@ -190,14 +165,19 @@ User: "${userInput}"
 }
 
 function formatResponse(text) {
-  return text.replace(/\n/g, "<br>");
+  return DOMPurify.sanitize(marked.parse(text));
 }
 
 // ENTER untuk submit
 chatInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && chatInput.value.trim()) {
-    sendMessage(chatInput.value.trim());
+    const promptText = chatInput.value.trim();
     chatInput.value = "";
+
+    sendMessage({
+      prompt: promptText,
+      model: "gemma2-9b-it"
+    });
   }
 });
 </script>
