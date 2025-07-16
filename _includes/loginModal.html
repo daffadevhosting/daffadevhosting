@@ -1,0 +1,81 @@
+<!-- Modal Overlay -->
+<div id="loginModal" class="fixed glassmorhp inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-[90%] max-w-md p-6 rounded-2xl shadow-2xl animate-fade-in">
+    <h2 class="text-xl font-bold mb-4">Masuk dengan Google</h2>
+    <p class="text-sm mb-4">Silakan masuk untuk melanjutkan menggunakan layanan AI kami. Harap setujui ketentuan layanan terlebih dahulu.</p>
+
+    <div class="flex items-center space-x-2 mb-4">
+      <input type="checkbox" id="acceptTerms" class="accent-blue-500 cursor-pointer">
+      <label for="acceptTerms" class="text-sm">Saya menyetujui <a href="{{site.baseurl}}/terms" class="underline">syarat & ketentuan</a>.</label>
+    </div>
+
+    <button id="confirmGoogleLogin" disabled class="w-full bg-blue-500 text-white py-2 px-4 rounded-xl font-semibold opacity-50 cursor-not-allowed transition-all">
+      <img src="{{site.baseurl}}/assets/images/icons/G-icon.png" alt="Google" class="inline w-5 h-5 mr-2"> Masuk dengan Google
+    </button>
+
+    <button id="closeLoginModal" class="mt-4 w-full text-sm text-zinc-500 cursor-pointer hover:underline">Batal</button>
+  </div>
+</div>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
+
+<script>
+const modal = document.getElementById('loginModal');
+const triggerBtn = document.getElementById('googleLoginBtn');
+const closeBtn = document.getElementById('closeLoginModal');
+const checkbox = document.getElementById('acceptTerms');
+const loginBtn = document.getElementById('confirmGoogleLogin');
+
+closeBtn.addEventListener('click', () => {
+  modal.classList.add('hidden');
+});
+
+checkbox.addEventListener('change', () => {
+  if (checkbox.checked) {
+    loginBtn.disabled = false;
+    loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    loginBtn.classList.add('cursor-pointer');
+  } else {
+    loginBtn.disabled = true;
+    loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    loginBtn.classList.remove('cursor-pointer');
+  }
+});
+
+loginBtn.addEventListener('click', async () => {
+  if (!checkbox.checked) return;
+  
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await firebase.auth().signInWithPopup(provider);
+    firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+        const token = await user.getIdToken();
+        const docRef = firebase.firestore().doc(`users/${user.uid}`);
+        await docRef.set({
+        uid: user.uid,
+        name: user.displayName || "Unknown",
+        email: user.email,
+        photoURL: user.photoURL,
+        role: 'free',
+        plan: 'free',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log("✅ User disimpan ke Firestore:", user.uid);
+    }
+    });
+    modal.classList.add('hidden');
+  } catch (error) {
+    alert('Login gagal: ' + error.message);
+  }
+});
+</script>

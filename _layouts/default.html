@@ -19,63 +19,10 @@ layout: null
       </main>
         {% include chatContainer.html %}
         {% include faqModal.html %}
-    <!-- Global Alert Container -->
-    <div id="global-alert-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-full max-w-xl px-4 pointer-events-none"></div>
+        {% include loginModal.html %}
+        {% include userProfile.html %}
+        {% include scripts/globalAlert.html %}
       {% include scripts/gsap-assemble.html %}
       {% if page.extra_scripts %}{{ page.extra_scripts }}{% endif %}
     </body>
-<script>
-function globalAlert(message = "Terjadi sesuatu!", type = "info", duration = 5000) {
-  const icons = {
-    success: "✅",
-    warning: "⚠️",
-    error: "❌",
-    info: "💡",
-  };
-
-  const bgColors = {
-    success: "from-green-700 to-green-500",
-    warning: "from-yellow-600 to-yellow-400",
-    error: "from-red-700 to-red-500",
-    info: "from-blue-700 to-blue-500",
-  };
-
-  const icon = icons[type] || icons.info;
-  const bg = bgColors[type] || bgColors.info;
-
-  const container = document.getElementById("global-alert-container");
-  if (!container) return;
-
-  const id = "alert-" + Date.now();
-  const alertEl = document.createElement("div");
-  alertEl.id = id;
-  alertEl.className =
-    `bg-gradient-to-r ${bg} text-white shadow-xl rounded-lg flex items-start sm:items-center justify-between gap-4 p-4 mb-4 animate__animated animate__fadeInDown pointer-events-auto`;
-
-  alertEl.innerHTML = `
-    <div class="flex-1 text-sm sm:text-base">
-      <strong class="font-bold">${icon}</strong>
-      <span class="ml-1">${message}</span>
-    </div>
-    <button onclick="dismissGlobalAlert('${id}')" class="text-white hover:text-gray-300 transition text-xl">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-  `;
-
-  container.appendChild(alertEl);
-
-  // Auto dismiss
-  setTimeout(() => {
-    dismissGlobalAlert(id);
-  }, duration);
-}
-
-function dismissGlobalAlert(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.add("animate__fadeOutUp");
-    setTimeout(() => el.remove(), 500);
-  }
-}
-</script>
 </html>

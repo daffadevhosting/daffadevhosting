@@ -79,3 +79,12 @@ body {
 .chat-container .message-box {
   background-color: #23272f; /* lebih soft dari hitam */
 }
+.badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.badge.admin { background: red; color: white; }
+.badge.pro { background: purple; color: white; }
+.badge.free { background: gray; color: white; }

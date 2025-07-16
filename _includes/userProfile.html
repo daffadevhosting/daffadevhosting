@@ -1,0 +1,17 @@
+<div id="userProfileModal" class="glassmorph fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-xl shadow-xl">
+    <h2 class="text-xl font-bold mb-3">Profil Pengguna</h2>
+    <p><strong>Nama:</strong> <span id="profileName"></span></p>
+    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+    <p><strong>Role:</strong> <span id="profileRole"></span></p>
+    <p><strong>Paket:</strong> <span id="profilePlan"></span></p>
+    <p><strong>Sisa Kuota:</strong> <span id="profileQuota"></span></p>
+    <button id="loggedOut" class="mt-4 bg-red-500 text-white px-4 py-2 rounded cursor-pointer" onclick="firebase.auth().signOut()">Logout</button>
+    <button class="mt-2 w-full text-sm text-zinc-500 cursor-pointer hover:underline" onclick="document.getElementById('userProfileModal').classList.add('hidden')">Tutup</button>
+  </div>
+</div>
+<script>
+  document.getElementById("loggedOut").addEventListener("click", () => {
+  document.getElementById('userProfileModal').classList.add('hidden');
+  });
+</script>
