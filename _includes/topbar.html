@@ -72,10 +72,12 @@ function renderUserProfile(user, quota) {
     return;
   }
 
-  document.getElementById("profileName").textContent = user.name ?? "-";
-  document.getElementById("profileEmail").textContent = user.email ?? "-";
-  document.getElementById("profileRole").textContent = user.role ?? "free";
-  document.getElementById("profilePlan").textContent = user.plan ?? "free";
-  document.getElementById("profileQuota").textContent = quota ?? "-";
+  document.getElementById("profileName").textContent = user.name || "Anonim";
+  document.getElementById("profileEmail").textContent = user.email || "-";
+  document.getElementById("profileRole").textContent = user.role || "free";
+  document.getElementById("profilePlan").textContent = user.plan || "free";
+  document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
+  document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
+
 }
 </script>

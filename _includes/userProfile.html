@@ -1,17 +1,37 @@
 <div id="userProfileModal" class="glassmorph fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-xl shadow-xl">
-    <h2 class="text-xl font-bold mb-3">Profil Pengguna</h2>
-    <p><strong>Nama:</strong> <span id="profileName"></span></p>
-    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
-    <p><strong>Role:</strong> <span id="profileRole"></span></p>
-    <p><strong>Paket:</strong> <span id="profilePlan"></span></p>
-    <p><strong>Sisa Kuota:</strong> <span id="profileQuota"></span></p>
-    <button id="loggedOut" class="mt-4 bg-red-500 text-white px-4 py-2 rounded cursor-pointer" onclick="firebase.auth().signOut()">Logout</button>
-    <button class="mt-2 w-full text-sm text-zinc-500 cursor-pointer hover:underline" onclick="document.getElementById('userProfileModal').classList.add('hidden')">Tutup</button>
+  <div class="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white w-full max-w-sm p-6 rounded-2xl shadow-2xl border border-white/20 relative overflow-hidden">
+
+    <!-- Avatar -->
+    <div class="flex flex-col items-center text-center">
+      <img id="profileAvatar" src="" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white shadow-md mb-3 object-cover" />
+      <h2 id="profileName" class="text-2xl font-semibold tracking-tight"></h2>
+      <p id="profileEmail" class="text-sm text-zinc-400 -mt-0.5"></p>
+
+      <!-- Badges -->
+      <div class="flex gap-2 mt-2">
+        <span id="profileRole" class="text-xs px-2 py-1 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 text-white font-semibold shadow-sm"></span>
+        <span id="profilePlan" class="text-xs px-2 py-1 rounded-full bg-zinc-800 text-white font-semibold border border-zinc-700 shadow-sm"></span>
+      </div>
+
+      <!-- Kuota -->
+      <p id="profileQuota" class="mt-4 text-sm text-zinc-300 italic"></p>
+
+      <!-- Tombol -->
+    <div class="flex justify-between items-center-safe w-full">
+      <button id="loggedOut" class="cursor-pointer mt-4 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full text-sm transition" onclick="firebase.auth().signOut()">Keluar</button>
+      <button onclick="document.getElementById('userProfileModal').classList.add('hidden')" class="cursor-pointer mt-2 text-xs text-zinc-400 hover:text-white underline transition">Tutup</button>
+    </div>
+    </div>
   </div>
 </div>
+
 <script>
+function showUserProfileModal(user, quota = "∞") {
+  if (!user) return;
+
+  document.getElementById("userProfileModal").classList.remove("hidden");
+  }
   document.getElementById("loggedOut").addEventListener("click", () => {
   document.getElementById('userProfileModal').classList.add('hidden');
-  });
+});
 </script>

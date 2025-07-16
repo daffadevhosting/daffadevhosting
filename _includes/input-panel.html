@@ -26,9 +26,14 @@
     
   </div>
   <div class="sticky bottom-0 bg-[#121212] border border-gray-700 rounded-xl p-4">
+  <div class="flex justify-between items-center-safe w-full">
     <p class="text-xs text-gray-400 text-left">
       Model aktif: <span id="active-model-label" class="text-green-300">llama-3.2-1b</span>
     </p>
+  <button id="settings" title="Setting" class="cursor-pointer text-sm text-center text-gray-400 hover:text-blue-400 transition underline">
+    <i class="fa-solid fa-gear text-2xl"></i>
+  </button>
+  </div>
     <div class="relative mt-2">
       <textarea id="prompt" class="w-full bg-[#2A2A2A] rounded-md px-2 py-2 text-sm text-white placeholder-gray-400" rows="3" placeholder="Masukkan instruksi desain..."></textarea>
       <button
@@ -168,6 +173,9 @@ async function handleTransformClick() {
     const rawOutput = data.output || data.response || "";
     const html = extractHtmlFromMarkdownBlock(rawOutput);
     if (reasonBox) reasonBox.classList.add("hidden");
+    if (data.user) {
+      showUserProfileModal(data.user, data.quota || "∞");
+    }
 
     updateWatermark(selectedModelId);
     animateTyping(outputEl, html);
@@ -228,7 +236,7 @@ async function handleTransformClick() {
     document.getElementById("transform-button").addEventListener("click", handleTransformClick);
     
     // --- Logika panel setting (GSAP) ---
-    const gearBtn = document.querySelector("aside .fa-gear")?.parentElement;
+    const gearBtn = document.getElementById("settings")?.parentElement;
     const modelSelector = document.getElementById("model-selector");
     const closeModelBtn = document.getElementById("close-model-selector");
     let panelVisible = false;
