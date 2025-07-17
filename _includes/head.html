@@ -2,21 +2,36 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ page.title }} | UI Transformer</title>
-  <meta name="description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 160 | escape | default: 'UI Transformer by L Y Я A - Konversi desain ke Tailwind CSS dengan AI.' }}">
-  <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+
+  <title>{{ page.title }} | UI Transformer - Konversi Desain ke Tailwind CSS dengan AI</title>
+
+  <meta name="description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 155 | escape | default: 'UI Transformer oleh L Y Я A: Konversi desain UI ke kode Tailwind CSS secara otomatis dengan AI. Solusi cepat untuk developer dan desainer.' }}">
+
+  <meta name="keywords" content="UI Transformer, AI to Tailwind CSS, konversi desain ke kode, Tailwind CSS AI, L Y Я A, otomatisasi desain, developer tools, web design">
+
+  <meta property="og:title" content="{{ page.title | default: 'UI Transformer oleh L Y Я A' }}">
+  <meta property="og:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 160 | escape | default: 'Konversi desain UI ke kode Tailwind CSS secara otomatis dengan AI. Solusi cepat untuk developer dan desainer.' }}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ page.url | replace:'index.html','' | absolute_url }}">
+  <meta property="og:image" content="{{ site.url }}/assets/images/og-image.jpg"> <meta property="og:site_name" content="UI Transformer">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ page.title | default: 'UI Transformer oleh L Y Я A' }}">
+  <meta name="twitter:description" content="{{ page.excerpt | strip_html | normalize_whitespace | truncate: 160 | escape | default: 'Konversi desain UI ke kode Tailwind CSS secara otomatis dengan AI. Solusi cepat untuk developer dan desainer.' }}">
+  <meta name="twitter:image" content="{{ site.url }}/assets/images/og-image.jpg"> <meta name="twitter:creator" content="@namatwitteranda"> <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" as="style">
+  <link rel="preload" href="{{ '/assets/css/tailwind.css' | relative_url }}" as="style">
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" as="script">
 
   {% feed_meta %}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ '/assets/css/tailwind.css' | relative_url }}">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  
-<!-- Highlight.js CSS theme -->
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-<!-- Highlight.js library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<!-- HTML language support -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>

@@ -6,7 +6,7 @@ title: UI Generator
 description: > # this means to ignore newlines until "baseurl:"
   UI Generator by L Y Я A - Konversi desain ke Tailwind CSS dengan AI.
 baseurl: "/daffadevhosting" # the subpath of your site, e.g. /blog
-url: "https://daffadevhosting.github.io" # the base hostname & protocol for your site
+url: "" # the base hostname & protocol for your site
 
 # Markdown settings
 markdown: kramdown

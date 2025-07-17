@@ -25,7 +25,7 @@
   <pre class="mb-4 overflow-x-hidden text-wrap"><code id="ai-output">... (code AI response ) ...</code></pre>
     
   </div>
-  <div class="sticky bottom-0 bg-[#121212] border border-gray-700 rounded-xl p-4">
+  <div class="sticky bottom-0 bg-[#121212] border border-gray-700 rounded-xl p-2">
   <div class="flex justify-between items-center-safe w-full">
     <p class="text-xs text-gray-400 text-left">
       Model aktif: <span id="active-model-label" class="text-green-300">llama-3.2-1b</span>
@@ -266,4 +266,22 @@ async function handleTransformClick() {
         toggleModelPanel(false);
     });
   });
+</script>
+
+<script>
+  function toggleOutputPanel() {
+    const panel = document.getElementById("output-panel");
+    const isHidden = panel.classList.contains("translate-y-[100vh]");
+
+    if (isHidden) {
+      panel.classList.remove("translate-y-[100vh]", "hidden");
+      panel.classList.add("translate-y-0");
+    } else {
+      panel.classList.remove("translate-y-0");
+      panel.classList.add("translate-y-[100vh]");
+      setTimeout(() => {
+        panel.classList.add("hidden");
+      }, 300);
+    }
+  }
 </script>

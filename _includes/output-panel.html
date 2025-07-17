@@ -1,6 +1,7 @@
-<div id="output-panel" class="w-full lg:w-full bg-[#282c34] overflow-hidden hidden md:block p-4 relative">
+<div id="output-panel" class="absolute lg:static inset-x-0 bottom-0 z-50 bg-[#282c34] md:bg-transparent md:p-0 px-0 p-4 shadow-lg transform transition-transform duration-300 ease-in-out
+         w-full h-[90vh] md:h-auto overflow-y-auto md:overflow-hidden hidden lg:block translate-y-[100vh] lg:translate-y-0">
   <!-- Tombol Kanan Atas -->
-  <div class="absolute top-2 right-2 flex items-center gap-2 z-10">
+  <div class="fixed bottom-4 md:bottom-2 right-4 md:right-2 flex items-center gap-4 z-10">
     <button
       onclick="saveEditedOutput()"
       id="save-button"
@@ -10,14 +11,14 @@
     <button
       onclick="toggleEditorMode()"
       id="edit-button"
-      class="cursor-pointer w-10 h-10 text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-center font-medium rounded-full text-sm p-2"
+      class="cursor-pointer opacity-60 w-10 h-10 text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:outline-none focus:ring-yellow-300 text-center font-medium rounded-full text-sm p-2"
       title="Edit HTML"
     ><i class="fa-solid fa-pen"></i></button>
 
     <button
       onclick="downloadHTML()"
       id="download-button"
-      class="cursor-pointer w-10 h-10 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 text-center font-medium rounded-full text-sm p-2"
+      class="cursor-pointer hidden md:block opacity-60 w-10 h-10 text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 text-center font-medium rounded-full text-sm p-2"
       title="Download HTML"
     >
       <i class="fa-solid fa-download"></i>
@@ -26,20 +27,20 @@
     <button
       onclick="showPreview()"
       id="preview-button"
-      class="cursor-pointer w-10 h-10 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
+      class="cursor-pointer hidden md:block opacity-60 w-10 h-10 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 text-center font-medium rounded-full text-sm p-2"
       title="Preview"
     ><i class="fa-solid fa-eye"></i></button>
   </div>
 
   <!-- Area Editor/Code -->
-  <div id="output-editor" class="relative h-[420px]">
+  <div id="output-editor" class="relative h-[90vh] md:h-[550px]">
     <!-- Code (readonly mode) -->
-    <pre id="output-readonly" class="bg-[#282c34] text-sm font-mono text-green-300 p-4 h-full rounded-md overflow-y-auto overflow-x-hidden min-h-96 whitespace-pre-wrap break-words hljs text-wrap transition-opacity duration-300 scrollbar-hidden"></pre>
+    <pre id="output-readonly" class="bg-[#282c34] text-sm font-mono text-green-300 md:pt-4 pt-28 p-4 h-full overflow-y-auto overflow-x-hidden min-h-100 whitespace-pre-wrap break-words hljs text-wrap transition-opacity duration-300 scrollbar-hidden"></pre>
 
     <!-- Textarea (edit mode) -->
     <textarea
       id="output-editable"
-      class="hidden h-full w-full bg-[#1e1e1e] text-green-300 font-mono text-sm p-4 mt-2 rounded-md border border-gray-700 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
+      class="hidden h-full w-full bg-[#1e1e1e] text-green-300 font-mono text-sm p-4 pt-28 border border-gray-700 resize-vertical focus:outline-none focus:ring-2 focus:ring-blue-500"
       rows="16"
       spellcheck="false"
     ></textarea>
@@ -165,3 +166,4 @@ if (frame?.src?.startsWith("blob:")) {
   }, 300); // harus sama dengan durasi transition-nya
 }
 </script>
+

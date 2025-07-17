@@ -9,12 +9,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const timeline = gsap.timeline({ defaults: { duration: 1.8, ease: "power3.out" } });
+
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+
     timeline
       .from("#topbar", { y: -80, opacity: 0 }, 0.2)
       .from("#sidebar", { y: 80, opacity: 0 }, 0.4)
-      .from("#input-panel", { x: -100, opacity: 0 }, 0.6)
-      .from("#output-panel", { x: 100, opacity: 0 }, 0.8)
-      .from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
+      .from("#input-panel", { x: -100, opacity: 0 }, 0.6);
+
+    if (isDesktop) {
+      timeline.from("#output-panel", { x: 100, opacity: 0 }, 0.8);
+    }
+
+    timeline.from("footer", { y: 60, opacity: 0, ease: "bounce.out" }, 1.0);
   }, 3000);
 });
 </script>

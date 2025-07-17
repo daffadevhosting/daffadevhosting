@@ -8,3 +8,4 @@ node_modules
 src
 assets/js/src
 package-lock.json
+Gemfile.lock
