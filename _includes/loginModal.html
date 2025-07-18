@@ -75,7 +75,7 @@ loginBtn.addEventListener('click', async () => {
     });
     modal.classList.add('hidden');
   } catch (error) {
-    alert('Login gagal: ' + error.message);
+    globalAlert('Login gagal: ' + error.message);
   }
 });
 </script>

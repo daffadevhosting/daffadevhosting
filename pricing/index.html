@@ -182,7 +182,7 @@ function renderPayPalButton(plan, amountUSD, containerId) {
         },
         createOrder: async function(data, actions) {
             if (!currentUser) { // Fallback check
-                alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+                globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
@@ -196,7 +196,9 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                     body: JSON.stringify({
                         amount: amountUSD,
                         currency_code: 'USD',
-                        description: `Pembelian Paket ${plan}`
+                        description: `Pembelian Paket ${plan}`,
+                        // --- Tambahkan custom_id di sini untuk mengirim UID pengguna ---
+                        custom_id: `${currentUser.uid}:${plan}`,
                     })
                 });
                 const order = await res.json();
@@ -204,18 +206,18 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                     return order.id;
                 } else {
                     console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
-                    alert('Terjadi kesalahan saat membuat pesanan PayPal. Silakan coba lagi.');
+                    globalAlert('Terjadi kesalahan saat membuat pesanan PayPal. Silakan coba lagi.');
                     throw new Error('No order ID from backend.');
                 }
             } catch (error) {
                 console.error('Error creating PayPal order:', error);
-                alert('Terjadi kesalahan jaringan saat membuat pesanan PayPal.');
+                globalAlert('Terjadi kesalahan jaringan saat membuat pesanan PayPal.');
                 throw error;
             }
         },
         onApprove: async function(data, actions) {
             if (!currentUser) { // Fallback check
-                alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+                globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
@@ -231,27 +233,27 @@ function renderPayPalButton(plan, amountUSD, containerId) {
 
                 const transaction = await res.json();
                 if (transaction.status === 'COMPLETED') {
-                    alert('Pembayaran berhasil!');
-                    window.location.href = '/thanks';
+                    globalAlert('Pembayaran berhasil!');
+                    window.location.href = './success';
                 } else {
-                    alert('Pembayaran tidak selesai. Status: ' + transaction.status);
-                    window.location.href = '/error-page';
+                    globalAlert('Pembayaran tidak selesai. Status: ' + transaction.status);
+                    window.location.href = './error';
                 }
             } catch (error) {
                 console.error('Error capturing PayPal payment:', error);
-                alert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
-                window.location.href = '/error-page';
+                globalAlert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
+                window.location.href = './error';
             } finally {
                 // Setelah selesai, refresh status tombol atau halaman
             }
         },
         onCancel: function(data) {
             console.log('Payment cancelled by user:', data);
-            alert('Pembayaran PayPal dibatalkan.');
+            globalAlert('Pembayaran PayPal dibatalkan.');
         },
         onError: function(err) {
             console.error('An error occurred with PayPal:', err);
-            alert('Terjadi kesalahan dengan PayPal. Silakan coba lagi.');
+            globalAlert('Terjadi kesalahan dengan PayPal. Silakan coba lagi.');
         }
     }).render(`#${containerId}`); // Render ke div spesifik
 }
@@ -261,7 +263,7 @@ function renderPayPalButton(plan, amountUSD, containerId) {
 document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
   btn.addEventListener('click', async () => {
     if (!currentUser) {
-        alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+        globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
         return;
     }
 
@@ -287,18 +289,18 @@ document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
 
         if (token) {
           snap.pay(token, {
-            onSuccess: result => window.location.href = '/thanks',
-            onPending: result => window.location.href = '/thanks',
+            onSuccess: result => window.location.href = './success',
+            onPending: result => window.location.href = './pending',
             onError: err => {
-              alert('Gagal memproses pembayaran Midtrans.');
+              globalAlert('Gagal memproses pembayaran Midtrans.');
               console.error(err);
             }
           });
         } else {
-            alert('Gagal mendapatkan token Midtrans.');
+            globalAlert('Gagal mendapatkan token Midtrans.');
         }
     } catch (err) {
-        alert('Terjadi kesalahan saat memproses Midtrans.');
+        globalAlert('Terjadi kesalahan saat memproses Midtrans.');
         console.error(err);
     } finally {
         btn.disabled = false;
