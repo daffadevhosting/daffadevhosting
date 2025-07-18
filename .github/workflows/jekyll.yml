@@ -15,7 +15,7 @@ jobs:
       FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-      MIDTRANS_URL: ${{ secrets.MIDTRANS_URL }}
+      MIDTRANS_URL: ${{ secrets.MIDTRANS_CLIENT_KEY }}
       PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
 
     steps:
