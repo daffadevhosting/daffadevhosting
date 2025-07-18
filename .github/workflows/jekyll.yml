@@ -16,6 +16,7 @@ jobs:
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
       MIDTRANS_URL: ${{ secrets.MIDTRANS_URL }}
+      PAYPAL_CLIENT_ID: ${{ secrets.PAYPAL_CLIENT_ID }}
 
     steps:
       - name: Checkout repository

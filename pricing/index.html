@@ -4,12 +4,10 @@ title: Pricing
 permalink: /pricing
 ---
 
-<div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full">
-        <!-- Pricing Cards -->
-    <div class="grid grid-cols-1 mx-auto mt-16 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full scrollbar-hidden">
+        <div class="grid grid-cols-1 mx-auto md:mt-14 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-    <!-- Medium Card -->
-    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+    <div class="glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
         <div class="glass px-6 py-5 bg-blue-100 border-b border-blue-200">
         <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,16 +24,25 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: LLaMA 3B</li>
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa iklan</li>
         </ul>
+
         <button
-            class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            class="pay-midtrans-button mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="24000"
             data-plan="medium"
-        >Pilih Paket</button>
+            style="display: none;"
+        >
+        Bayar dengan Midtrans</button>
+        <div
+            id="paypal-buttons-medium"
+            data-plan="medium"
+            data-amount="24000"
+            class="paypal-buttons-container w-full mt-2"
+            style="display: none;" ></div>
+        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
-    <!-- Advanced Card (Popular) -->
-    <div class="relative bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover transform scale-105 z-10 border-2 border-yellow-400 animate__animated animate__pulse">
+    <div class="relative glassmorph rounded-xl overflow-hidden shadow-lg card-hover transform scale-105 z-10 border-2 border-yellow-400 animate__animated animate__pulse">
         <div class="absolute top-0 right-0 bg-yellow-300 text-yellow-900 px-3 py-1 text-xs font-bold rounded-bl-lg popular-badge">
         TERPOPULER
         </div>
@@ -56,15 +63,22 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa batasan fitur</li>
         </ul>
         <button
-            class="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            class="pay-midtrans-button mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="38000"
             data-plan="advanced"
-        >Pilih Paket</button>
+        >
+        Bayar dengan Midtrans</button>
+        <div
+            id="paypal-buttons-advanced"
+            data-plan="advanced"
+            data-amount="38000"
+            class="paypal-buttons-container w-full mt-2"
+            style="display: none;" ></div>
+        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
-    <!-- Expert Card -->
-    <div class="bg-white glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
+    <div class="glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
         <div class="glass px-6 py-5 bg-green-100 border-b border-green-200">
         <div class="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,12 +96,215 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Powerful reasoning & output</li>
         </ul>
         <button
-            class="mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
+            class="pay-midtrans-button mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="69000"
             data-plan="expert"
-        >Pilih Paket</button>
+        >
+        Bayar dengan Midtrans</button>
+        <div
+            id="paypal-buttons-expert"
+            data-plan="expert"
+            data-amount="69000"
+            class="paypal-buttons-container w-full mt-2"
+            style="display: none;" ></div>
+        <span class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</span>
         </div>
+    </div>
     </div>
 
     </div>
 </div>
+
+<script>
+const BACKEND_BASE_URL = 'https://ui-transform.daffadev.workers.dev'; // <-- Ganti dengan URL Cloudflare Worker Kamu!
+let currentUser = null;
+
+firebase.auth().onAuthStateChanged(user => {
+    currentUser = user;
+
+    // Sembunyikan semua tombol pembayaran (Midtrans & PayPal containers) secara default
+    const midtransButtons = document.querySelectorAll('.pay-midtrans-button');
+    const paypalContainers = document.querySelectorAll('.paypal-buttons-container');
+    const loginMessages = document.querySelectorAll('.login-message');
+
+    if (user) {
+        // Pengguna sudah login
+        loginMessages.forEach(message => {
+            message.style.display = 'none'; // Sembunyikan pesan login
+        });
+
+        midtransButtons.forEach(button => {
+            button.style.display = 'block'; // Tampilkan tombol Midtrans
+        });
+
+        paypalContainers.forEach(container => {
+            container.style.display = 'block'; // Tampilkan container PayPal
+            // Sekarang kita akan merender tombol PayPal di sini
+            const plan = container.dataset.plan;
+            const amountIDR = parseInt(container.dataset.amount);
+            let amountUSD = (amountIDR / 15000).toFixed(2); // Sesuaikan konversi dollar
+
+            // Render tombol PayPal untuk setiap container
+            renderPayPalButton(plan, amountUSD, container.id);
+        });
+
+    } else {
+        // Pengguna belum login
+        loginMessages.forEach(message => {
+            message.style.display = 'block'; // Tampilkan pesan login
+        });
+
+        midtransButtons.forEach(button => {
+            button.style.display = 'none'; // Sembunyikan tombol Midtrans
+        });
+
+        paypalContainers.forEach(container => {
+            container.style.display = 'none'; // Sembunyikan container PayPal
+            container.innerHTML = ''; // Hapus tombol PayPal yang mungkin sudah dirender
+        });
+    }
+});
+
+// Fungsi untuk me-render tombol PayPal
+// Ini membantu menghindari rendering ulang yang tidak perlu
+function renderPayPalButton(plan, amountUSD, containerId) {
+    // Pastikan container bersih sebelum merender
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+
+    paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal'
+        },
+        createOrder: async function(data, actions) {
+            if (!currentUser) { // Fallback check
+                alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+                return actions.reject('User not logged in');
+            }
+            const idToken = await currentUser.getIdToken();
+            try {
+                const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({
+                        amount: amountUSD,
+                        currency_code: 'USD',
+                        description: `Pembelian Paket ${plan}`
+                    })
+                });
+                const order = await res.json();
+                if (order.id) {
+                    return order.id;
+                } else {
+                    console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
+                    alert('Terjadi kesalahan saat membuat pesanan PayPal. Silakan coba lagi.');
+                    throw new Error('No order ID from backend.');
+                }
+            } catch (error) {
+                console.error('Error creating PayPal order:', error);
+                alert('Terjadi kesalahan jaringan saat membuat pesanan PayPal.');
+                throw error;
+            }
+        },
+        onApprove: async function(data, actions) {
+            if (!currentUser) { // Fallback check
+                alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+                return actions.reject('User not logged in');
+            }
+            const idToken = await currentUser.getIdToken();
+            try {
+                const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/capture-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify({ orderID: data.orderID })
+                });
+
+                const transaction = await res.json();
+                if (transaction.status === 'COMPLETED') {
+                    alert('Pembayaran berhasil!');
+                    window.location.href = '/thanks';
+                } else {
+                    alert('Pembayaran tidak selesai. Status: ' + transaction.status);
+                    window.location.href = '/error-page';
+                }
+            } catch (error) {
+                console.error('Error capturing PayPal payment:', error);
+                alert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
+                window.location.href = '/error-page';
+            } finally {
+                // Setelah selesai, refresh status tombol atau halaman
+            }
+        },
+        onCancel: function(data) {
+            console.log('Payment cancelled by user:', data);
+            alert('Pembayaran PayPal dibatalkan.');
+        },
+        onError: function(err) {
+            console.error('An error occurred with PayPal:', err);
+            alert('Terjadi kesalahan dengan PayPal. Silakan coba lagi.');
+        }
+    }).render(`#${containerId}`); // Render ke div spesifik
+}
+
+
+// Event listener untuk tombol Midtrans (menggunakan class baru .pay-midtrans-button)
+document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    if (!currentUser) {
+        alert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
+        return;
+    }
+
+    const plan = btn.dataset.plan;
+    const amountIDR = parseInt(btn.dataset.amount);
+
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
+
+    const idToken = await currentUser.getIdToken();
+
+    try {
+        const res = await fetch(`${BACKEND_BASE_URL}/api/midtrans/create-midtrans`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}` // Mengirim ID Token
+          },
+          body: JSON.stringify({ plan, amount: amountIDR })
+        });
+
+        const { token } = await res.json();
+
+        if (token) {
+          snap.pay(token, {
+            onSuccess: result => window.location.href = '/thanks',
+            onPending: result => window.location.href = '/thanks',
+            onError: err => {
+              alert('Gagal memproses pembayaran Midtrans.');
+              console.error(err);
+            }
+          });
+        } else {
+            alert('Gagal mendapatkan token Midtrans.');
+        }
+    } catch (err) {
+        alert('Terjadi kesalahan saat memproses Midtrans.');
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Bayar dengan Midtrans'; // Reset teks
+    }
+  });
+});
+
+</script>
