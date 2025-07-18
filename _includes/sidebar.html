@@ -24,71 +24,160 @@
   {% else %}{% endif %}
 </aside>
 <div id="model-selector"
-  class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none">
-  <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
-  <div class="space-y-2 text-sm text-gray-300">
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name="model" value="basic" class="accent-blue-500" checked />
-      qwen1.5-0 - Element Sederhana <span class="text-yellow-500 text-xs ml-1">FREE 2x</span>
-    </label>
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name="model" value="medium" class="accent-blue-500" disabled />
-      llama-3.2-1b - Komponen Responsive <span class="text-yellow-500 text-xs ml-1">MEDIUM</span>
-    </label>
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name="model" value="advanced" class="accent-blue-500" disabled />
-      mistral-small-3.1 - Layout Modular <span class="text-yellow-500 text-xs ml-1">ADVANCE</span>
-    </label>
-    <label class="flex items-center gap-2 cursor-pointer">
-      <input type="radio" name="model" value="expert" class="accent-blue-500" disabled />
-      deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT</span>
-    </label>
-  </div>
-<div id="coding-mode-toggle" class="mt-4 bg-[#1E1E1E] p-3 rounded-lg border border-gray-700">
-  <label class="flex items-center text-sm text-gray-300 gap-2">
-    <input type="checkbox" id="enable-coding-mode" class="cursor-pointer accent-blue-500">
-    Mode Coding (React, Vue, JSX)
-  </label>
-  <p class="text-xs text-gray-500 mt-1">Mode ini akan membuat AI merespons dengan format kode yang lebih kompleks.</p>
+    class="fixed z-50 bottom-20 md:left-24 left-4 right-4 md:right-auto w-auto max-w-xs bg-[#1E1E1E] backdrop-blur-md rounded-xl shadow-xl border border-gray-700 p-4 space-y-4 opacity-0 scale-95 pointer-events-none">
+    <h3 class="text-white text-sm font-semibold">Pilih Model AI</h3>
+    <div class="space-y-2 text-sm text-gray-300">
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="model" value="basic" class="accent-blue-500" checked />
+            qwen1.5-0 - Element Sederhana <span class="text-yellow-500 text-xs ml-1">FREE 2x</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="model" value="medium" class="accent-blue-500" disabled />
+            llama-3.2-1b - Komponen Responsive <span class="text-yellow-500 text-xs ml-1">MEDIUM</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="model" value="advanced" class="accent-blue-500" disabled />
+            mistral-small-3.1 - Layout Modular <span class="text-yellow-500 text-xs ml-1">ADVANCE</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="model" value="expert" class="accent-blue-500" disabled />
+            deepseek-r1 - Full Page Elegan <span class="text-yellow-500 text-xs ml-1">EXPERT</span>
+        </label>
+    </div>
+    <div id="coding-mode-toggle" class="mt-4 bg-[#1E1E1E] p-3 rounded-lg border border-gray-700">
+        <label class="flex items-center text-sm text-gray-300 gap-2">
+            <input type="checkbox" id="enable-coding-mode" class="cursor-pointer accent-blue-500">
+            Mode Coding (React, Vue, JSX)
+        </label>
+        <p class="text-xs text-gray-500 mt-1">Mode ini akan membuat AI merespons dengan format kode yang lebih kompleks.</p>
+    </div>
+    <button id="close-model-selector"
+        class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
 </div>
-  <button id="close-model-selector"
-    class="cursor-pointer w-full mt-2 text-sm bg-blue-600 hover:bg-blue-700 text-white py-2 rounded shadow">Simpan</button>
-</div>
+
 <script>
-  const codingModeCheckbox = document.getElementById("enable-coding-mode");
+    const codingModeCheckbox = document.getElementById("enable-coding-mode");
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const saved = localStorage.getItem("codingMode") || "off";
-    codingModeCheckbox.checked = saved === "on";
+    document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem("codingMode") || "off";
+        codingModeCheckbox.checked = saved === "on";
 
-    codingModeCheckbox.addEventListener("change", () => {
-      localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+        codingModeCheckbox.addEventListener("change", () => {
+            localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+        });
     });
-  });
 
-  async function sendPrompt(prompt, selectedModelId) {
-    const isCodingMode = localStorage.getItem("codingMode") === "on";
+    // --- LOGIKA BARU UNTUK MENGAKTIFKAN MODEL AI BERDASARKAN PLAN ---
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (user) {
+            try {
+                const db = firebase.firestore(); // Dapatkan instance Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          model: selectedModelId,
-          mode: "initial",
-          coding: isCodingMode // ✅ dikirim ke backend
-        })
-      });
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const userRole = userData?.role || 'basic';
+                    const userPlan = userData?.plan || 'basic'; // Default 'basic' jika tidak ada plan
 
-      const data = await res.json();
-      console.log("✅ AI Response:", data.output);
-      return data.output;
-    } catch (err) {
-      console.error("❌ Error:", err.message);
+                    console.log(`User ${user.uid}: Role - ${userRole}, Plan - ${userPlan}`);
+
+                    // Dapatkan semua input radio model
+                    const modelRadios = document.querySelectorAll('input[name="model"]');
+
+
+                    modelRadios.forEach(radio => {
+                        const modelValue = radio.value;
+
+                        // Basic selalu aktif
+                        if (modelValue === 'basic') {
+                            radio.disabled = false;
+                        } else if (userRole === 'pro') {
+                            // Jika pengguna pro, aktifkan model sesuai plan atau di bawahnya
+                            switch (userPlan) {
+                                case 'expert':
+                                    // Jika plan expert, aktifkan SEMUA model berbayar
+                                    radio.disabled = false; // <--- BARIS INI AKAN MENGAKTIFKAN SEMUA MODEL!
+                                    break;
+                                case 'advanced':
+                                    if (modelValue === 'advanced' || modelValue === 'medium') {
+                                        radio.disabled = false;
+                                    } else {
+                                        radio.disabled = true;
+                                    }
+                                    break;
+                                case 'medium':
+                                    if (modelValue === 'medium') {
+                                        radio.disabled = false;
+                                    } else {
+                                        radio.disabled = true;
+                                    }
+                                    break;
+                                default: // Jika plan pro tapi tidak terdefinisi atau basic
+                                    radio.disabled = true;
+                                    break;
+                            }
+                        } else {
+                            // Jika bukan pro, semua selain basic disabled
+                            radio.disabled = true;
+                        }
+                    });
+                    
+                    // Set model yang dipilih jika user punya plan yang lebih tinggi
+                    // dan model defaultnya masih basic (misal: setelah login pertama kali)
+                    if (userRole === 'pro' && userPlan !== 'basic') {
+                        const selectedRadio = document.querySelector(`input[name="model"][value="${userPlan}"]`);
+                        if (selectedRadio) {
+                            selectedRadio.checked = true;
+                        }
+                    }
+
+                } else {
+                    console.warn(`User document not found for ${user.uid}. Defaulting to basic role.`);
+                    // Pastikan semua model berbayar disabled jika dokumen user tidak ditemukan
+                    document.querySelectorAll('input[name="model"]').forEach(radio => {
+                        if (radio.value !== 'basic') radio.disabled = true;
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching user data from Firestore:", error);
+                // Pastikan semua model berbayar disabled jika ada error
+                document.querySelectorAll('input[name="model"]').forEach(radio => {
+                    if (radio.value !== 'basic') radio.disabled = true;
+                });
+            }
+        } else {
+            // Pengguna belum login atau logout
+            // Pastikan semua model berbayar disabled
+            document.querySelectorAll('input[name="model"]').forEach(radio => {
+                if (radio.value !== 'basic') radio.disabled = true;
+            });
+            // Pastikan basic tetap aktif
+            document.querySelector('input[name="model"][value="basic"]').checked = true;
+            document.querySelector('input[name="model"][value="basic"]').disabled = false;
+        }
+    });
+    // --- AKHIR LOGIKA BARU ---
+
+    async function sendPrompt(prompt, selectedModelId) {
+        const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt,
+                    model: selectedModelId,
+                    mode: "initial",
+                    coding: isCodingMode // ✅ dikirim ke backend
+                })
+            });
+
+            const data = await res.json();
+            console.log("✅ AI Response:", data.output);
+            return data.output;
+        } catch (err) {
+            console.error("❌ Error:", err.message);
+        }
     }
-  }
-
-  // Contoh trigger manual:
-  // sendPrompt("buatkan halaman login react", "@cf/meta/llama-3.2-3b-instruct");
 </script>
