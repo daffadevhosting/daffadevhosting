@@ -56,7 +56,7 @@
 </div>
 
 <script>
-    const codingModeCheckbox = document.getElementById("enable-coding-mode");
+const codingModeCheckbox = document.getElementById("enable-coding-mode");
 
     document.addEventListener("DOMContentLoaded", () => {
         const saved = localStorage.getItem("codingMode") || "off";
@@ -121,7 +121,7 @@
                             radio.disabled = true;
                         }
                     });
-                    
+
                     // Set model yang dipilih jika user punya plan yang lebih tinggi
                     // dan model defaultnya masih basic (misal: setelah login pertama kali)
                     if (userRole === 'pro' && userPlan !== 'basic') {
