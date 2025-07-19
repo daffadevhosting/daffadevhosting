@@ -58,126 +58,141 @@
 <script>
 const codingModeCheckbox = document.getElementById("enable-coding-mode");
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const saved = localStorage.getItem("codingMode") || "off";
-        codingModeCheckbox.checked = saved === "on";
+document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("codingMode") || "off";
+    codingModeCheckbox.checked = saved === "on";
 
-        codingModeCheckbox.addEventListener("change", () => {
-            localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
-        });
+    codingModeCheckbox.addEventListener("change", () => {
+        localStorage.setItem("codingMode", codingModeCheckbox.checked ? "on" : "off");
+    });
+});
+
+// --- LOGIKA BARU UNTUK MENGAKTIFKAN MODEL AI BERDASARKAN PLAN ---
+firebase.auth().onAuthStateChanged(async (user) => {
+    const modelRadios = document.querySelectorAll('input[name="model"]');
+    const defaultModelRadio = document.querySelector('input[name="model"][value="basic"]');
+
+    // Reset semua radio ke disabled secara default
+    modelRadios.forEach(radio => {
+        radio.disabled = true;
+        radio.checked = false; // Uncheck semua
     });
 
-    // --- LOGIKA BARU UNTUK MENGAKTIFKAN MODEL AI BERDASARKAN PLAN ---
-    firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-            try {
-                const db = firebase.firestore(); // Dapatkan instance Firestore
-                const userDoc = await db.collection('users').doc(user.uid).get();
+    // Selalu aktifkan dan pilih 'basic' sebagai default
+    if (defaultModelRadio) {
+        defaultModelRadio.disabled = false;
+        defaultModelRadio.checked = true; // Pilih basic secara default
+    }
 
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    const userRole = userData?.role || 'basic';
-                    const userPlan = userData?.plan || 'basic'; // Default 'basic' jika tidak ada plan
+    if (user) {
+        try {
+            const db = firebase.firestore();
+            const userDoc = await db.collection('users').doc(user.uid).get();
 
-                    console.log(`User ${user.uid}: Role - ${userRole}, Plan - ${userPlan}`);
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                const userRole = userData?.role || 'free'; // Default 'free' jika tidak ada role
+                const userPlan = userData?.plan || 'free'; // Default 'free' jika tidak ada plan
 
-                    // Dapatkan semua input radio model
-                    const modelRadios = document.querySelectorAll('input[name="model"]');
+                console.log(`User ${user.uid}: Role - ${userRole}, Plan - ${userPlan}`);
 
+                // Tentukan model yang seharusnya aktif berdasarkan plan
+                let allowedModels = ['basic']; // Basic selalu aktif
 
-                    modelRadios.forEach(radio => {
-                        const modelValue = radio.value;
-
-                        // Basic selalu aktif
-                        if (modelValue === 'basic') {
-                            radio.disabled = false;
-                        } else if (userRole === 'pro') {
-                            // Jika pengguna pro, aktifkan model sesuai plan atau di bawahnya
-                            switch (userPlan) {
-                                case 'expert':
-                                    // Jika plan expert, aktifkan SEMUA model berbayar
-                                    radio.disabled = false; // <--- BARIS INI AKAN MENGAKTIFKAN SEMUA MODEL!
-                                    break;
-                                case 'advanced':
-                                    if (modelValue === 'advanced' || modelValue === 'medium') {
-                                        radio.disabled = false;
-                                    } else {
-                                        radio.disabled = true;
-                                    }
-                                    break;
-                                case 'medium':
-                                    if (modelValue === 'medium') {
-                                        radio.disabled = false;
-                                    } else {
-                                        radio.disabled = true;
-                                    }
-                                    break;
-                                default: // Jika plan pro tapi tidak terdefinisi atau basic
-                                    radio.disabled = true;
-                                    break;
-                            }
-                        } else {
-                            // Jika bukan pro, semua selain basic disabled
-                            radio.disabled = true;
-                        }
-                    });
-
-                    // Set model yang dipilih jika user punya plan yang lebih tinggi
-                    // dan model defaultnya masih basic (misal: setelah login pertama kali)
-                    if (userRole === 'pro' && userPlan !== 'basic') {
-                        const selectedRadio = document.querySelector(`input[name="model"][value="${userPlan}"]`);
-                        if (selectedRadio) {
-                            selectedRadio.checked = true;
-                        }
+                if (userRole === 'pro') {
+                    switch (userPlan) {
+                        case 'pro_medium': // Perhatikan nama plan dari Firestore
+                            allowedModels.push('medium');
+                            break;
+                        case 'pro_advanced':
+                            allowedModels.push('medium', 'advanced');
+                            break;
+                        case 'pro_expert':
+                            allowedModels.push('medium', 'advanced', 'expert'); // Semua model pro
+                            break;
+                        // case 'basic': // Jika 'basic' adalah plan berbayar, tambahkan di sini
+                        //     allowedModels.push('basic');
+                        //     break;
                     }
-
-                } else {
-                    console.warn(`User document not found for ${user.uid}. Defaulting to basic role.`);
-                    // Pastikan semua model berbayar disabled jika dokumen user tidak ditemukan
-                    document.querySelectorAll('input[name="model"]').forEach(radio => {
-                        if (radio.value !== 'basic') radio.disabled = true;
-                    });
                 }
-            } catch (error) {
-                console.error("Error fetching user data from Firestore:", error);
-                // Pastikan semua model berbayar disabled jika ada error
-                document.querySelectorAll('input[name="model"]').forEach(radio => {
+
+                // Aktifkan radio button yang diizinkan dan pilih yang tertinggi jika ada
+                let highestAllowedModelChecked = false;
+                modelRadios.forEach(radio => {
+                    const modelValue = radio.value;
+                    if (allowedModels.includes(modelValue)) {
+                        radio.disabled = false;
+                        // Pilih model tertinggi yang diizinkan sebagai default,
+                        // atau biarkan yang sudah dipilih jika ada (misal dari localStorage)
+                        // Untuk kasus ini, kita akan memilih yang tertinggi secara otomatis
+                        if (modelValue === userPlan.replace('pro_', '') || (userPlan === 'pro_expert' && modelValue === 'expert')) {
+                            radio.checked = true;
+                            highestAllowedModelChecked = true;
+                        }
+                    } else {
+                        radio.disabled = true;
+                    }
+                });
+
+                // Jika tidak ada model pro yang dipilih (misal userPlan 'basic' atau 'free'),
+                // pastikan 'basic' tetap terpilih
+                if (!highestAllowedModelChecked && defaultModelRadio) {
+                    defaultModelRadio.checked = true;
+                }
+
+            } else {
+                console.warn(`User document not found for ${user.uid}. Defaulting to free role.`);
+                // Jika dokumen user tidak ditemukan, hanya basic yang aktif
+                modelRadios.forEach(radio => {
                     if (radio.value !== 'basic') radio.disabled = true;
                 });
+                if (defaultModelRadio) {
+                    defaultModelRadio.checked = true;
+                }
             }
-        } else {
-            // Pengguna belum login atau logout
-            // Pastikan semua model berbayar disabled
-            document.querySelectorAll('input[name="model"]').forEach(radio => {
+        } catch (error) {
+            console.error("Error fetching user data from Firestore:", error);
+            // Jika ada error, hanya basic yang aktif
+            modelRadios.forEach(radio => {
                 if (radio.value !== 'basic') radio.disabled = true;
             });
-            // Pastikan basic tetap aktif
-            document.querySelector('input[name="model"][value="basic"]').checked = true;
-            document.querySelector('input[name="model"][value="basic"]').disabled = false;
+            if (defaultModelRadio) {
+                defaultModelRadio.checked = true;
+            }
         }
-    });
-    // --- AKHIR LOGIKA BARU ---
-
-    async function sendPrompt(prompt, selectedModelId) {
-        const isCodingMode = localStorage.getItem("codingMode") === "on";
-
-        try {
-            const res = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    prompt,
-                    model: selectedModelId,
-                    mode: "initial",
-                    coding: isCodingMode // ✅ dikirim ke backend
-                })
-            });
-
-            const data = await res.json();
-            console.log("✅ AI Response:", data.output);
-            return data.output;
-        } catch (err) {
-            console.error("❌ Error:", err.message);
+    } else {
+        // Pengguna belum login atau logout
+        modelRadios.forEach(radio => {
+            if (radio.value !== 'basic') radio.disabled = true;
+        });
+        if (defaultModelRadio) {
+            defaultModelRadio.checked = true;
         }
     }
+});
+// --- AKHIR LOGIKA BARU ---
+
+async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt,
+                model: selectedModelId,
+                mode: "initial",
+                coding: isCodingMode
+            })
+        });
+
+        const data = await res.json();
+        console.log("✅ AI Response:", data.output);
+        return data.output;
+    } catch (err) {
+        console.error("❌ Error:", err.message);
+    }
+}
 </script>
+

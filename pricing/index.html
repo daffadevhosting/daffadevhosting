@@ -5,7 +5,7 @@ permalink: /pricing
 ---
 
 <div class="relative p-4 overflow-y-auto mx-auto h-screen max-w-[1200px] w-full scrollbar-hidden">
-        <div class="grid grid-cols-1 mx-auto md:mt-14 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 mx-auto mt-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
     <div class="glassmorph rounded-xl overflow-hidden shadow-lg card-hover">
         <div class="glass px-6 py-5 bg-blue-100 border-b border-blue-200">
@@ -25,20 +25,20 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa iklan</li>
         </ul>
 
-        <button
+        <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="24000"
             data-plan="medium"
             style="display: none;"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-medium"
             data-plan="medium"
             data-amount="24000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
+        <p class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
@@ -62,19 +62,19 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Mistral 7B</li>
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Tanpa batasan fitur</li>
         </ul>
-        <button
+        <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="38000"
             data-plan="advanced"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-advanced"
             data-plan="advanced"
             data-amount="38000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <p class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</p>
+        <p class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</p>
         </div>
     </div>
 
@@ -95,19 +95,19 @@ permalink: /pricing
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Model: Deepseek 32B</li>
             <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>Powerful reasoning & output</li>
         </ul>
-        <button
+       <!-- <button
             class="pay-midtrans-button mt-8 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 pay-button"
             data-amount="69000"
             data-plan="expert"
         >
-        Bayar dengan Midtrans</button>
+        Bayar dengan Midtrans</button> -->
         <div
             id="paypal-buttons-expert"
             data-plan="expert"
             data-amount="69000"
-            class="paypal-buttons-container w-full mt-2"
+            class="paypal-buttons-container w-full mt-8"
             style="display: none;" ></div>
-        <span class="login-message text-center text-red-500 text-sm mt-2 hidden">Harap login untuk membayar.</span>
+        <span class="login-message text-center text-red-500 text-sm mt-8 hidden">Harap login untuk membayar.</span>
         </div>
     </div>
     </div>
@@ -116,59 +116,42 @@ permalink: /pricing
 </div>
 
 <script>
-const BACKEND_BASE_URL = 'https://ui-transform.daffadev.workers.dev'; // <-- Ganti dengan URL Cloudflare Worker Kamu!
+const BACKEND_BASE_URL = 'https://ui-transform.daffadev.workers.dev'; // <-- Ganti dengan URL Cloudflare
 let currentUser = null;
 
 firebase.auth().onAuthStateChanged(user => {
     currentUser = user;
 
-    // Sembunyikan semua tombol pembayaran (Midtrans & PayPal containers) secara default
-    const midtransButtons = document.querySelectorAll('.pay-midtrans-button');
+    //const midtransButtons = document.querySelectorAll('.pay-midtrans-button');
     const paypalContainers = document.querySelectorAll('.paypal-buttons-container');
     const loginMessages = document.querySelectorAll('.login-message');
 
     if (user) {
-        // Pengguna sudah login
-        loginMessages.forEach(message => {
-            message.style.display = 'none'; // Sembunyikan pesan login
-        });
-
-        midtransButtons.forEach(button => {
-            button.style.display = 'block'; // Tampilkan tombol Midtrans
-        });
+        loginMessages.forEach(message => { message.style.display = 'none'; });
+        //midtransButtons.forEach(button => { button.style.display = 'block'; });
 
         paypalContainers.forEach(container => {
-            container.style.display = 'block'; // Tampilkan container PayPal
-            // Sekarang kita akan merender tombol PayPal di sini
+            container.style.display = 'block';
             const plan = container.dataset.plan;
             const amountIDR = parseInt(container.dataset.amount);
-            let amountUSD = (amountIDR / 15000).toFixed(2); // Sesuaikan konversi dollar
+            let amountUSD = (amountIDR / 15800).toFixed(2);
 
-            // Render tombol PayPal untuk setiap container
+            // Debug: Log plan dan amount yang akan dirender
+            //console.log(`[Frontend] Rendering PayPal button for plan: ${plan}, amountUSD: ${amountUSD}, container: ${container.id}`);
             renderPayPalButton(plan, amountUSD, container.id);
         });
 
     } else {
-        // Pengguna belum login
-        loginMessages.forEach(message => {
-            message.style.display = 'block'; // Tampilkan pesan login
-        });
-
-        midtransButtons.forEach(button => {
-            button.style.display = 'none'; // Sembunyikan tombol Midtrans
-        });
-
+        loginMessages.forEach(message => { message.style.display = 'block'; });
+       // midtransButtons.forEach(button => { button.style.display = 'none'; });
         paypalContainers.forEach(container => {
-            container.style.display = 'none'; // Sembunyikan container PayPal
-            container.innerHTML = ''; // Hapus tombol PayPal yang mungkin sudah dirender
+            container.style.display = 'none';
+            container.innerHTML = '';
         });
     }
 });
 
-// Fungsi untuk me-render tombol PayPal
-// Ini membantu menghindari rendering ulang yang tidak perlu
 function renderPayPalButton(plan, amountUSD, containerId) {
-    // Pastikan container bersih sebelum merender
     const container = document.getElementById(containerId);
     if (!container) return;
     container.innerHTML = '';
@@ -181,11 +164,16 @@ function renderPayPalButton(plan, amountUSD, containerId) {
             label: 'paypal'
         },
         createOrder: async function(data, actions) {
-            if (!currentUser) { // Fallback check
+            if (!currentUser) {
                 globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
+            const customIdString = `${currentUser.uid}:${plan}`; // String custom_id yang akan dikirim
+
+            // Debug: Log data yang akan dikirim ke create-order backend
+            //console.log(`[Frontend] createOrder: Sending to backend - plan: ${plan}, amountUSD: ${amountUSD}, custom_id: ${customIdString}`);
+
             try {
                 const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/create-order`, {
                     method: 'POST',
@@ -197,30 +185,36 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                         amount: amountUSD,
                         currency_code: 'USD',
                         description: `Pembelian Paket ${plan}`,
-                        // --- Tambahkan custom_id di sini untuk mengirim UID pengguna ---
-                        custom_id: `${currentUser.uid}:${plan}`,
+                        plan: plan,
+                        custom_id: customIdString, // Mengirim custom_id
                     })
                 });
                 const order = await res.json();
+                // Debug: Log respons dari create-order backend
+                //console.log(`[Frontend] createOrder: Response from backend -`, order);
+
                 if (order.id) {
                     return order.id;
                 } else {
-                    console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
+                    //console.error('Failed to create PayPal order (no ID):', order.details || order.error || order);
                     globalAlert('Terjadi kesalahan saat membuat pesanan PayPal. Silakan coba lagi.');
                     throw new Error('No order ID from backend.');
                 }
             } catch (error) {
-                console.error('Error creating PayPal order:', error);
+                //console.error('Error creating PayPal order:', error);
                 globalAlert('Terjadi kesalahan jaringan saat membuat pesanan PayPal.');
                 throw error;
             }
         },
         onApprove: async function(data, actions) {
-            if (!currentUser) { // Fallback check
+            if (!currentUser) {
                 globalAlert('Harap login ke akun Anda terlebih dahulu untuk melanjutkan pembayaran.');
                 return actions.reject('User not logged in');
             }
             const idToken = await currentUser.getIdToken();
+            // Debug: Log orderID yang akan dikirim ke capture-order backend
+            //console.log(`[Frontend] onApprove: Capturing orderID: ${data.orderID}`);
+
             try {
                 const res = await fetch(`${BACKEND_BASE_URL}/api/paypal/capture-order`, {
                     method: 'POST',
@@ -232,34 +226,35 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                 });
 
                 const transaction = await res.json();
+                // Debug: Log respons dari capture-order backend
+                //console.log(`[Frontend] onApprove: Response from capture-order backend -`, transaction);
+
                 if (transaction.status === 'COMPLETED') {
                     globalAlert('Pembayaran berhasil!');
-                    window.location.href = './success';
+                    //window.location.href = './success';
                 } else {
                     globalAlert('Pembayaran tidak selesai. Status: ' + transaction.status);
-                    window.location.href = './error';
+                    //window.location.href = './error';
                 }
             } catch (error) {
-                console.error('Error capturing PayPal payment:', error);
+                //console.error('Error capturing PayPal payment:', error);
                 globalAlert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
-                window.location.href = './error';
+                //window.location.href = './error';
             } finally {
                 // Setelah selesai, refresh status tombol atau halaman
             }
         },
         onCancel: function(data) {
-            console.log('Payment cancelled by user:', data);
+            //console.log('Payment cancelled by user:', data);
             globalAlert('Pembayaran PayPal dibatalkan.');
         },
         onError: function(err) {
-            console.error('An error occurred with PayPal:', err);
+            //console.error('An error occurred with PayPal:', err);
             globalAlert('Terjadi kesalahan dengan PayPal. Silakan coba lagi.');
         }
-    }).render(`#${containerId}`); // Render ke div spesifik
+    }).render(`#${containerId}`);
 }
 
-
-// Event listener untuk tombol Midtrans (menggunakan class baru .pay-midtrans-button)
 document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
   btn.addEventListener('click', async () => {
     if (!currentUser) {
@@ -285,12 +280,14 @@ document.querySelectorAll('.pay-midtrans-button').forEach((btn) => {
           body: JSON.stringify({ plan, amount: amountIDR })
         });
 
-        const { token } = await res.json();
+        // Dapatkan token DAN orderId dari respons backend
+        const { token, orderId } = await res.json();
 
         if (token) {
           snap.pay(token, {
-            onSuccess: result => window.location.href = './success',
-            onPending: result => window.location.href = './pending',
+            // Gunakan orderId yang diterima dari backend
+            onSuccess: result => window.location.href = `./success?order_id=${orderId}`,
+            onPending: result => window.location.href = `./pending?order_id=${orderId}`,
             onError: err => {
               globalAlert('Gagal memproses pembayaran Midtrans.');
               console.error(err);

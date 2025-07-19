@@ -30,55 +30,148 @@
 </button>
   </div>
 </div>
+
 <script>
-  const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+const API_URL = "https://ui-transform.daffadev.workers.dev/generate";
+
 firebase.auth().onAuthStateChanged(async (user) => {
-  const btn = document.getElementById("userButton");
+    const btn = document.getElementById("userButton");
+    const profileModal = document.getElementById("userProfileModal");
+    const loginModal = document.getElementById("loginModal");
 
-  if (user) {
-    const photoURL = user.photoURL || '{{site.baseurl}}/assets/images/icons/G-icon.png';
-    btn.innerHTML = `
-      <img src="${photoURL}" alt="User" id="userAvatar" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
-    `;
+    if (user) {
+        const photoURL = user.photoURL || '{{site.baseurl}}/assets/images/icons/G-icon.png';
+        btn.innerHTML = `
+            <img src="${photoURL}" alt="User" id="userAvatar" class="w-8 h-8 rounded-full shadow-lg cursor-pointer transition hover:ring-2 ring-blue-500">
+        `;
 
-    document.getElementById("userAvatar").addEventListener("click", () => {
-      document.getElementById("userProfileModal").classList.remove("hidden");
-    });
+        document.getElementById("userAvatar").addEventListener("click", () => {
+            profileModal.classList.remove("hidden");
+        });
 
-    // 🔥 Ambil token & user data dari backend
-    const token = await user.getIdToken();
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: 'cek quota', model: 'basic' }),
-    });
-    const result = await res.json();
-    renderUserProfile(result.user, res.headers.get('X-Remaining-Quota'));
-  } else {
-    // Belum login, tampilkan tombol login Google
-    btn.innerHTML = `
-      <button id="googleLoginBtn" class="cursor-pointer">
-        <img src="{{site.baseurl}}/assets/images/icons/G-icon.png" alt="Login">
-      </button>
-    `;
-    document.getElementById("googleLoginBtn").addEventListener("click", () => {
-      document.getElementById("loginModal").classList.remove("hidden");
-    });
-  }
+        // --- LOGIKA BARU: Ambil data user dari Firestore di frontend ---
+        let userDataFromFirestore = {
+            name: user.displayName || 'Unknown',
+            email: user.email || '-',
+            role: 'free', // Default
+            plan: 'free', // Default
+            photoURL: user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U"),
+            valid_until: null, // Tambahkan properti valid_until
+            isPremium: false, // Tambahkan properti isPremium
+        };
+
+        try {
+            const db = firebase.firestore();
+            const userDocRef = db.collection('users').doc(user.uid);
+            const userDoc = await userDocRef.get();
+
+            if (userDoc.exists) {
+                const firestoreData = userDoc.data(); // Ini adalah objek yang sudah diurai oleh Firebase JS SDK
+                
+                // Debug: Log data yang sudah diurai oleh Firebase JS SDK
+                //console.log("[Profile] User data from Firestore (raw JS SDK object):", JSON.stringify(firestoreData, null, 2));
+
+                // Ekstrak nilai sebenarnya secara langsung
+                userDataFromFirestore.name = firestoreData?.name || user.displayName || 'Unknown';
+                userDataFromFirestore.email = firestoreData?.email || user.email || '-';
+                userDataFromFirestore.role = firestoreData?.role || 'free'; // <-- Hapus .stringValue
+                userDataFromFirestore.plan = firestoreData?.plan || 'free'; // <-- Hapus .stringValue
+                userDataFromFirestore.photoURL = firestoreData?.photoURL || user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U");
+                
+                // Ekstrak isPremium dan valid_until (juga langsung)
+                userDataFromFirestore.isPremium = firestoreData?.isPremium || false;
+                if (firestoreData?.valid_until) { // valid_until akan menjadi objek Timestamp
+                    userDataFromFirestore.valid_until = firestoreData.valid_until.toDate(); // Konversi Timestamp ke Date object
+                }
+
+                //console.log("[Profile] User data from Firestore (extracted for display):", userDataFromFirestore);
+            } else {
+                //console.warn(`[Profile] User document not found in Firestore for UID: ${user.uid}. Using default values.`);
+            }
+        } catch (error) {
+            globalAlert('Terjadi kesalahan. Silakan coba lagi.');
+            //console.error("[Profile] Error fetching user data from Firestore:", error);
+        }
+        // --- AKHIR LOGIKA BARU ---
+
+        // Ambil kuota dari backend (tetap dari /generate untuk saat ini)
+        let remainingQuota = "∞";
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: 'cek quota', model: 'basic' }),
+            });
+            if (res.ok) {
+                remainingQuota = res.headers.get('X-Remaining-Quota');
+            } else {
+                console.warn("[Profile] Failed to fetch quota from backend:", res.status, res.statusText);
+            }
+        } catch (error) {
+            console.error("[Profile] Error fetching quota from backend:", error);
+        }
+
+        renderUserProfile(userDataFromFirestore, remainingQuota);
+
+    } else {
+        btn.innerHTML = `
+            <button id="googleLoginBtn" class="cursor-pointer">
+                <img src="{{site.baseurl}}/assets/images/icons/G-icon.png" alt="Login">
+            </button>
+        `;
+        document.getElementById("googleLoginBtn").addEventListener("click", () => {
+            loginModal.classList.remove("hidden");
+        });
+    }
 });
 
 function renderUserProfile(user, quota) {
-  if (!user) {
-    console.warn("⚠️ Tidak ada user data dikirim dari backend.");
-    return;
-  }
+    if (!user) {
+        console.warn("⚠️ Tidak ada user data dikirim untuk renderUserProfile.");
+        return;
+    }
 
-  document.getElementById("profileName").textContent = user.name || "Anonim";
-  document.getElementById("profileEmail").textContent = user.email || "-";
-  document.getElementById("profileRole").textContent = user.role || "free";
-  document.getElementById("profilePlan").textContent = user.plan || "free";
-  document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
-  document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
+    document.getElementById("profileName").textContent = user.name || "Anonim";
+    document.getElementById("profileEmail").textContent = user.email || "-";
+    document.getElementById("profileRole").textContent = user.role || "free";
+    document.getElementById("profilePlan").textContent = user.plan || "free";
+    
+    const validUntilElement = document.getElementById("profileValidUntil");
+    if (validUntilElement) {
+        if (user.valid_until) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            validUntilElement.textContent = `Berlaku hingga: ${user.valid_until.toLocaleDateString('id-ID', options)}`;
+        } else {
+            validUntilElement.textContent = `Berlaku hingga: N/A`;
+        }
+    }
 
+    document.getElementById("profileQuota").textContent = `Sisa kuota: ${quota !== undefined && quota !== null ? quota : "∞"}`;
+    document.getElementById("profileAvatar").src = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name || "U");
 }
+
+async function sendPrompt(prompt, selectedModelId) {
+    const isCodingMode = localStorage.getItem("codingMode") === "on";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                prompt,
+                model: selectedModelId,
+                mode: "initial",
+                coding: isCodingMode
+            })
+        });
+
+        const data = await res.json();
+        console.log("✅ AI Response:", data.output);
+        return data.output;
+    } catch (err) {
+            console.error("❌ Error:", err.message);
+        }
+    }
 </script>
+
