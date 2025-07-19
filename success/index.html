@@ -1,68 +1,202 @@
 ---
-title: Berhasil
-permalink: /success
+layout: null
+title: Success
+permalink: success
 ---
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Status Pembayaran</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Status Pembayaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7F8FA;
+        }
+        .card-shadow {
+             box-shadow: 0px 8px 16px rgba(17, 17, 26, 0.05), 0px 4px 8px rgba(17, 17, 26, 0.05);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
-  <div class="min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-      <h1 class="text-xl font-semibold text-center text-purple-700 mb-4">Status Pembayaran</h1>
+<body class="text-gray-800">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        
+        <div id="loader" class="text-center">
+            <svg class="animate-spin h-8 w-8 text-green-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-gray-600">Memuat status pembayaran...</p>
+        </div>
 
-      <div id="status-box" class="text-center space-y-4">
-        <p id="status-message" class="text-sm text-gray-600">Memuat informasi pembayaran...</p>
-        <div class="loader animate-pulse text-purple-500">⏳</div>
-      </div>
+        <div id="success-card" class="hidden bg-white p-6 sm:p-8 rounded-2xl card-shadow w-full max-w-md text-center">
+            <div class="mx-auto bg-green-100 rounded-full h-20 w-20 flex items-center justify-center">
+                <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mt-6">Pembayaran Berhasil</h1>
+            <p class="text-gray-500 mt-2">Terima kasih! Pesanan Anda telah kami terima dan sedang diproses.</p>
+            
+            <div class="border-t my-6"></div>
 
-      <div class="mt-6 text-center">
-        <a href="{{site.baseurl}}/" class="text-sm text-purple-600 hover:underline">← Kembali ke Beranda</a>
-      </div>
+            <div class="space-y-3 text-left text-sm">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Status</span>
+                    <span id="status-text" class="font-semibold text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Tanggal Bayar</span>
+                    <span id="paid-at" class="font-semibold text-gray-800"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Order ID</span>
+                    <span id="order-id" class="font-semibold text-gray-800 break-all"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Jumlah</span>
+                    <span id="amount" class="font-semibold text-gray-800"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Mata Uang</span>
+                    <span id="currency" class="font-semibold text-gray-800"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">Paket</span>
+                    <span id="plan" class="font-semibold text-gray-800"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500">PayPal Capture ID</span>
+                    <span id="paypal-capture-id" class="font-semibold text-gray-800 break-all"></span>
+                </div>
+            </div>
+
+            <a href="{{site.baseurl}}/" class="mt-8 inline-block w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors duration-300">
+                Kembali ke Beranda
+            </a>
+        </div>
+
+        <div id="error-card" class="hidden bg-white p-6 sm:p-8 rounded-2xl card-shadow w-full max-w-md text-center">
+             <div class="mx-auto bg-red-100 rounded-full h-20 w-20 flex items-center justify-center">
+                <svg class="h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900 mt-6">Gagal Memuat Status</h1>
+            <p id="error-message" class="text-gray-500 mt-2">Maaf, kami tidak dapat menemukan informasi untuk pesanan ini.</p>
+            <a href="{{site.baseurl}}/" class="mt-8 inline-block w-full bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-800 transition-colors duration-300">
+                Kembali ke Beranda
+            </a>
+        </div>
     </div>
-  </div>
 
-  <script>
-const params = new URLSearchParams(window.location.search);
-const orderId = params.get("order_id") || params.get("orderId");
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    async function fetchStatus() {
-      const userId = localStorage.getItem("userId") || "anonymous"; // Sesuaikan kalau pakai login
-      const token = localStorage.getItem("fbToken"); // token Firebase REST API kamu
-      const url = `https://firestore.googleapis.com/v1/projects/glitchlab-ai/databases/(default)/documents/users/${userId}/payments/${orderId}`;
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const successCard = document.getElementById('success-card');
+        const errorCard = document.getElementById('error-card');
+        const errorMessage = document.getElementById('error-message');
 
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        function showSuccess(orderId, status, timestamp, amount, currency, plan, paypalCaptureId) {
+            loader.classList.add('hidden');
+            errorCard.classList.add('hidden');
+            successCard.classList.remove('hidden');
 
-      const statusBox = document.getElementById("status-box");
-      const msg = document.getElementById("status-message");
+            document.getElementById('status-text').textContent = status ? status.toUpperCase() : 'BERHASIL';
+            document.getElementById('order-id').textContent = orderId; // This will now effectively be the paymentId
 
-      if (res.ok) {
-        const data = await res.json();
-        const status = data.fields?.status?.stringValue || "unknown";
-        const paidAt = data.fields?.paid_at?.timestampValue;
+            if (timestamp && typeof timestamp.toDate === 'function') {
+                document.getElementById('paid-at').textContent = timestamp.toDate().toLocaleString('id-ID', {
+                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            } else {
+                document.getElementById('paid-at').textContent = 'Saat ini';
+            }
+            
+            document.getElementById('amount').textContent = amount ? amount.toLocaleString('id-ID') : '-';
+            document.getElementById('currency').textContent = currency ? currency : '-';
+            document.getElementById('plan').textContent = plan ? plan : '-';
+            document.getElementById('paypal-capture-id').textContent = paypalCaptureId ? paypalCaptureId : '-';
+        }
 
-        msg.innerHTML = `
-          <span class="block text-lg font-semibold text-green-600">${status.toUpperCase()}</span>
-          ${paidAt ? `<span class="text-sm text-gray-500">dibayar pada ${new Date(paidAt).toLocaleString("id-ID")}</span>` : ""}
-        `;
-        document.querySelector(".loader").remove();
-      } else {
-        msg.innerHTML = `<span class="text-red-500">❌ Gagal memuat status pembayaran.</span>`;
-      }
-    }
+        function showError(message) {
+            loader.classList.add('hidden');
+            successCard.classList.add('hidden');
+            errorCard.classList.remove('hidden');
+            errorMessage.textContent = message;
+        }
 
-    if (orderId) {
-      fetchStatus();
-    } else {
-      document.getElementById("status-message").innerText = "❗ Order ID tidak ditemukan di URL.";
-    }
-  </script>
+        async function fetchPaymentStatus() {
+            const params = new URLSearchParams(window.location.search);
+            const userId = params.get("userId");
+            const paymentId = params.get("paymentId");
+
+
+            if (!userId || !paymentId) {
+                showError("User ID atau Payment ID tidak ditemukan pada URL. Pastikan URL memiliki parameter userId dan paymentId.");
+                return;
+            }
+            
+            try {
+                // Konfigurasi Firebase, menggunakan variabel global jika tersedia
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                    apiKey: "{{ site.FIREBASE_API_KEY }}",
+                    authDomain: "{{ site.FIREBASE_AUTH_DOMAIN }}",
+                    projectId: "{{ site.FIREBASE_PROJECT_ID }}",
+                    appId: "{{ site.FIREBASE_APP_ID }}"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+                setLogLevel('error'); // 'debug' or 'error'
+
+                // Autentikasi user
+                const authToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (authToken) {
+                    await signInWithCustomToken(auth, authToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Mengambil data dari koleksi 'users' dengan 'userId' sebagai ID dokumen,
+                // dan subkoleksi 'payments' dengan 'paymentId'
+                const docRef = doc(db, "users", userId, "payments", paymentId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const status = data.status;
+                    const paidAtTimestamp = data.timestamp;
+                    const amount = data.amount;
+                    const currency = data.currency;
+                    const plan = data.plan;
+                    const paypalCaptureId = data.paypalCaptureId;
+
+                    // Cek beberapa kemungkinan status sukses
+                    const successStatus = ['completed', 'paid', 'success', 'berhasil'];
+                    if (status && successStatus.includes(status.toLowerCase())) {
+                        showSuccess(paymentId, status, paidAtTimestamp, amount, currency, plan, paypalCaptureId);
+                    } else {
+                         showError(`Status pesanan Anda saat ini: ${status || 'Pending'}. Silakan hubungi support jika ada kendala.`);
+                    }
+                } else {
+                    showError("Data pembayaran untuk User ID atau Payment ID ini tidak ditemukan. Pastikan ID sudah benar.");
+                }
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                showError("Terjadi kesalahan teknis saat mengambil data pembayaran.");
+            }
+        }
+
+        fetchPaymentStatus();
+    </script>
 </body>
 </html>

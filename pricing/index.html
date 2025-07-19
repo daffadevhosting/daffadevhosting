@@ -229,13 +229,25 @@ function renderPayPalButton(plan, amountUSD, containerId) {
                 // Debug: Log respons dari capture-order backend
                 //console.log(`[Frontend] onApprove: Response from capture-order backend -`, transaction);
 
-                if (transaction.status === 'COMPLETED') {
-                    globalAlert('Pembayaran berhasil!');
-                    //window.location.href = './success';
+            if (transaction.status === 'COMPLETED') {
+                globalAlert('Pembayaran berhasil!');
+                
+                // Pastikan backend Anda mengembalikan userId dan paypalCaptureId
+                const userId = transaction.userId; // Dapatkan userId dari respons backend
+                const paymentId = transaction.paypalCaptureId || transaction.orderID; // Dapatkan ID transaksi PayPal dari respons backend
+
+                if (userId && paymentId) {
+                    // Bangun URL dengan parameter userId dan paymentId
+                    window.location.href = `./success?userId=${userId}&paymentId=${paymentId}`;
                 } else {
-                    globalAlert('Pembayaran tidak selesai. Status: ' + transaction.status);
-                    //window.location.href = './error';
+                    // Jika userId atau paymentId tidak tersedia, arahkan ke halaman sukses tanpa data spesifik atau tampilkan error
+                    globalAlert('Pembayaran berhasil, tetapi data detail tidak ditemukan.');
+                    //window.location.href = './success'; // Redirect tetap, tapi mungkin tampilan di halaman sukses akan kosong
                 }
+            } else {
+                globalAlert('Pembayaran tidak selesai. Status: ' + transaction.status);
+                //window.location.href = './error';
+            }
             } catch (error) {
                 //console.error('Error capturing PayPal payment:', error);
                 globalAlert('Terjadi kesalahan saat menyelesaikan pembayaran PayPal.');
