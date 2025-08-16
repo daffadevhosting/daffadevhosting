@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 hero">My Repositories</h1>
+
+    <!-- Tempat repo akan tampil -->
+    <div id="project-list" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3"></div>
+  </div>
+
+  <!-- Script fetch dari GitHub -->
+  <script src="/assets/js/github-projects.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- Tilt.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+<script>
+  function initCardEffects() {
+    const cards = document.querySelectorAll(".card:not(.tilt-init)");
+
+    if (cards.length > 0) {
+      // Animasi GSAP
+      gsap.from(cards, {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power2.out",
+      });
+
+      // VanillaTilt hanya untuk card baru
+      VanillaTilt.init(cards, {
+        max: 15,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.2,
+      });
+
+      // Tandai biar nggak di-init dua kali
+      cards.forEach(c => c.classList.add("tilt-init"));
+    }
+  }
+
+  // Observer untuk deteksi card baru
+  const observer = new MutationObserver(() => {
+    initCardEffects();
+  });
+
+  observer.observe(document.getElementById("project-list"), { childList: true });
+
+  // Animasi Hero
+  gsap.from(".hero", {
+    opacity: 0,
+    y: -40,
+    duration: 1,
+    ease: "power2.out",
+  });
+</script>
+</body>
+</html>

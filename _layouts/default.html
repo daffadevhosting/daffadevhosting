@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: page.lang | default: 'en' }}">
+
+  {% include head.html %}
+
+  <style>
+    .mode-toggle {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      transition: all 0.3s ease;
+    }
+    .active-mode {
+      background-color: #4299e1; /* blue-500 */
+      color: white;
+    }
+    .inactive-mode {
+      background-color: transparent;
+      color: #a0aec0; /* gray-400 */
+    }
+    .inactive-mode:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+  </style>
+
+  <body class="overflow-hidden bg-gray-900">
+    <!-- Main content for list view -->
+    <div id="page-content" class="container mx-auto p-6 h-screen flex flex-col items-center justify-center" style="display: none;">
+      <h1 class="text-3xl font-bold mb-8 text-white">🌐 My Repositories List</h1>
+
+      <!-- Swiper -->
+      <div id="swiperContainer" class="w-full max-w-4xl">
+        <div class="swiper">
+          <div class="swiper-wrapper" id="repo-swiper"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas for Three.js, covers the whole screen -->
+    <canvas id="globe" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: block; z-index: -1;"></canvas>
+
+    <!-- Sophisticated Toggle buttons -->
+    <div class="fixed top-6 right-6 z-50 bg-gray-800 bg-opacity-50 backdrop-blur-sm p-1 rounded-full flex items-center gap-1 border border-gray-700">
+      <button id="globeMode" class="mode-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.002 6.002 0 0111.336 0l2.003.572a8.002 8.002 0 00-15.342 0l2.003-.572z" clip-rule="evenodd" /></svg>
+        <span>Globe</span>
+      </button>
+      <button id="listMode" class="mode-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" /></svg>
+        <span>List</span>
+      </button>
+    </div>
+
+    <!-- Script -->
+    <script type="module" src="/assets/js/portfolio-globe.js"></script>
+  </body>
+
+</html>
