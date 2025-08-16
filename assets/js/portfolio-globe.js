@@ -86,7 +86,7 @@ async function main() {
   });
 
   // === Fetch repo ===
-  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=50`);
+  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=35`);
   const repos = await repoRes.json();
 
   const planes = [];
