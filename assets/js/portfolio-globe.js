@@ -1,5 +1,5 @@
 const username = "daffadevhosting"; // ganti username
-const workerBase = "https://github.daffaadityadwiputra.workers.dev/api";
+const workerBase = "https://my-github.daffaadityadwiputra.workers.dev/api";
 
 // --- Color Maps ---
 const langColors = {
@@ -86,7 +86,7 @@ async function main() {
   });
 
   // === Fetch repo ===
-  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=30`);
+  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=50`);
   const repos = await repoRes.json();
 
   const planes = [];

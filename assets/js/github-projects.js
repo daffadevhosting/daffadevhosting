@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const username = "daffadevhosting";
   const container = document.getElementById("project-list");
 
-  const workerBase = "https://github.daffaadityadwiputra.workers.dev/api";
+  const workerBase = "https://my-github.daffaadityadwiputra.workers.dev/api";
 
   const langColors = {
     JavaScript: "bg-yellow-400 text-black",
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     // ambil semua repo via Worker
-    const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=100`);
+    const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=10`);
     const repos = await repoRes.json();
 
     repos.sort((a, b) => a.name.localeCompare(b.name));
