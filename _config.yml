@@ -15,12 +15,6 @@ url: "https://daffadevhosting.github.io" # the base hostname & protocol for your
 # Markdown settings
 markdown: kramdown
 
-# Sass settings
-sass:
-  add_charset: true
-  sass_dir: assets/sass
-  style: :compressed
-
 # Build settings
 exclude:
   - package.json
