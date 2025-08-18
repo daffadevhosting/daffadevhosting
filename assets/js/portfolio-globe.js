@@ -43,33 +43,77 @@ async function main() {
 
   const scene = new THREE.Scene();
 
-  // --- Futuristic Starfield Background ---
-  const starVertices = [];
-  for (let i = 0; i < 15000; i++) {
-      const x = (Math.random() - 0.5) * 2000;
-      const y = (Math.random() - 0.5) * 2000;
-      const z = (Math.random() - 0.5) * 2000;
-      starVertices.push(x, y, z);
-  }
-  const starGeometry = new THREE.BufferGeometry();
-  starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-  const starMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 0.7,
-      transparent: true,
-      opacity: 0.8
-  });
-  const starfield = new THREE.Points(starGeometry, starMaterial);
-  scene.add(starfield);
+  // --- Space Background ---
+  const cubeTextureLoader = new THREE.CubeTextureLoader();
+  // Load from local assets
+  cubeTextureLoader.setPath('assets/images/');
+  const cubeTexture = cubeTextureLoader.load([
+      'dark-s_px.jpg', 'dark-s_nx.jpg',
+      'dark-s_py.jpg', 'dark-s_ny.jpg',
+      'dark-s_pz.jpg', 'dark-s_nz.jpg'
+  ]);
+  scene.background = cubeTexture;
 
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 0, 12);
+  camera.position.set(0, 0, 0.1);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
-  controls.enablePan = false;
-  controls.autoRotate = true;
+  controls.enablePan = true;
+  controls.autoRotate = false; // Disable initially to show the title
   controls.autoRotateSpeed = 0.7;
+
+  // === Lighting ===
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  directionalLight.position.set(5, 10, 7.5);
+  scene.add(directionalLight);
+
+  // === 3D Text ===
+  const fontLoader = new THREE.FontLoader();
+  fontLoader.load(
+    'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/helvetiker_regular.typeface.json',
+    (font) => {
+        const textGeometry = new THREE.TextGeometry('Repositories List', {
+            font: font,
+            size: 0.5,
+            height: 0.1,
+            curveSegments: 12,
+            bevelEnabled: true,
+            bevelThickness: 0.03,
+            bevelSize: 0.02,
+            bevelOffset: 0,
+            bevelSegments: 5
+        });
+
+        const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0x111111 });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        scene.add(textMesh);
+
+        // Center the text geometry
+        textGeometry.computeBoundingBox();
+        const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+        
+        // Position it in front of the initial camera view, responsive for mobile
+        let distance = 5; // Default distance for desktop
+        if (window.innerWidth < 768) {
+            distance = 8; // Move it further away on mobile
+        }
+        textMesh.position.set(-textWidth / 2, 0, -distance);
+
+        // On first interaction, start animation and move text to final position
+        renderer.domElement.addEventListener('mousedown', () => {
+            controls.autoRotate = true;
+            gsap.to(textMesh.position, { 
+                duration: 2, 
+                y: 12,
+                z: 0,
+                ease: 'power3.inOut' 
+            });
+        }, { once: true });
+    }
+  );
 
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -86,7 +130,7 @@ async function main() {
   });
 
   // === Fetch repo ===
-  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=35`);
+  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=36`);
   const repos = await repoRes.json();
 
   const planes = [];
@@ -117,7 +161,7 @@ async function main() {
 
   function createCardTexture(repo) {
     const canvas = document.createElement("canvas");
-    const width = 512, height = 256;
+    const width = 512, height = 362;
     canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext("2d");
 
@@ -164,63 +208,62 @@ async function main() {
   }
 
   function placeOnGlobe(plane, index, total) {
-    const phi = Math.acos(-1 + (2 * index) / total);
-    const theta = Math.sqrt(total * Math.PI) * phi;
-    const radius = 5.5;
+    const radius = 4 + Math.random() * 6; // Menyebar secara acak dari pusat
+    const phi = Math.acos(2 * Math.random() - 1); // Distribusi vertikal merata
+    const theta = Math.random() * 2 * Math.PI; // Distribusi horizontal merata
+
     plane.position.setFromSphericalCoords(radius, phi, theta);
     plane.lookAt(0,0,0);
   }
 
-  let lastClickTime = 0;
-  const doubleClickDelay = 500; // ms
-
-window.addEventListener("click", () => {
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(planes);
-  if (intersects.length > 0) {
-    const target = intersects[0].object;
-    if (focusedCard === target) {
-      window.open(target.userData.html_url, "_blank");
-    }
-  }
-});
-
   let focusedCard = null;
   let isTransitioning = false;
+
+  window.addEventListener("click", () => {
+    if (isTransitioning) return;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(planes);
+    const clickedObject = intersects.length > 0 ? intersects[0].object : null;
+
+    if (clickedObject) {
+      if (focusedCard === clickedObject) {
+        window.open(clickedObject.userData.html_url, "_blank");
+      } else {
+        isTransitioning = true;
+        focusedCard = clickedObject;
+        controls.autoRotate = false;
+
+        // Hitung posisi agar jaraknya konsisten dari kartu, di antara pusat dan kartu
+        // Dibuat responsif untuk mobile
+        let focusDistance = 2.0; // Jarak default untuk desktop
+        if (window.innerWidth < 768) {
+            focusDistance = 4.5; // Lebih jauh di mobile agar tidak terlalu zoom
+        }
+        const offset = focusedCard.position.clone().normalize().multiplyScalar(focusDistance);
+        const targetPos = focusedCard.position.clone().sub(offset);
+        gsap.to(camera.position, { duration: 1, x: targetPos.x, y: targetPos.y, z: targetPos.z, ease: 'power3.inOut' });
+        gsap.to(controls.target, { duration: 1, x: focusedCard.position.x, y: focusedCard.position.y, z: focusedCard.position.z, ease: 'power3.inOut', onComplete: () => { isTransitioning = false; } });
+
+        planes.forEach(p => { gsap.to(p.material, { duration: 0.5, opacity: p === focusedCard ? 1.0 : 0.2 }); });
+      }
+    } else if (focusedCard) {
+      isTransitioning = true;
+      // Zoom out to a position that can see the whole cloud
+      const zoomOutPos = focusedCard.position.clone().normalize().multiplyScalar(11.0);
+      focusedCard = null;
+
+      gsap.to(camera.position, { duration: 1, x: zoomOutPos.x, y: zoomOutPos.y, z: zoomOutPos.z, ease: 'power3.inOut' });
+      gsap.to(controls.target, { duration: 1, x: 0, y: 0, z: 0, ease: 'power3.inOut', onComplete: () => { controls.autoRotate = true; isTransitioning = false; } });
+      
+      planes.forEach(p => { gsap.to(p.material, { duration: 0.5, opacity: 0.9 }); });
+    }
+  });
 
   function animate() {
     requestAnimationFrame(animate);
 
-    if (!isTransitioning) {
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(planes);
-        const currentlyHovered = intersects.length > 0 ? intersects[0].object : null;
-
-        if (currentlyHovered && currentlyHovered !== focusedCard) {
-            isTransitioning = true;
-            focusedCard = currentlyHovered;
-            controls.autoRotate = false;
-
-            const targetPos = focusedCard.position.clone().normalize().multiplyScalar(3.5); // Zoom sedikiit
-            gsap.to(camera.position, { duration: 1, x: targetPos.x, y: targetPos.y, z: targetPos.z, ease: 'power3.inOut' });
-            gsap.to(controls.target, { duration: 1, x: focusedCard.position.x, y: focusedCard.position.y, z: focusedCard.position.z, ease: 'power3.inOut', onComplete: () => { isTransitioning = false; } });
-
-            planes.forEach(p => { gsap.to(p.material, { duration: 0.5, opacity: p === focusedCard ? 1.0 : 0.2 }); });
-
-        } else if (!currentlyHovered && focusedCard) {
-            isTransitioning = true;
-            focusedCard = null;
-
-            gsap.to(camera.position, { duration: 1, x: 0, y: 0, z: 0.1, ease: 'power3.inOut' });
-            gsap.to(controls.target, { duration: 1, x: 0, y: 0, z: 0, ease: 'power3.inOut', onComplete: () => { controls.autoRotate = true; isTransitioning = false; } });
-            
-            planes.forEach(p => { gsap.to(p.material, { duration: 0.5, opacity: 0.9 }); });
-        }
-    }
-
     controls.update();
-    starfield.rotation.y += 0.0001;
-    starfield.rotation.x += 0.00005;
     renderer.render(scene, camera);
   }
   animate();
