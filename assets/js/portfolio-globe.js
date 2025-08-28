@@ -33,6 +33,10 @@ const langCardBgColors = {
     Shell: '#4EAA25',
 };
 
+  
+  let repos = []
+    .filter(repo => repo.updatedAt)
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
 async function main() {
   // === Setup Three.js ===
@@ -130,7 +134,7 @@ async function main() {
   });
 
   // === Fetch repo ===
-  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=36`);
+  const repoRes = await fetch(`${workerBase}/users/${username}/repos?per_page=50`);
   const repos = await repoRes.json();
 
   const planes = [];
