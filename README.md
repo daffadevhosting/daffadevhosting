@@ -15,7 +15,9 @@ Masih pemula tapi terus belajar dan berkembang setiap hari 💻🌱
 ### 📈 GitHub Stats
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=daffadevhosting&show_icons=true&theme=radical" alt="Daffa's GitHub Stats" />
+    <a href="https://github.com/denvercoder1/github-readme-streak-stats" title="Go to Source">
+      <img align="left" width=396 src="https://github-readme-streak-stats.herokuapp.com/?user=daffadevhosting&theme=react&border=61dafb&hide_border=true" alt="daffadev" />
+    </a>
 </p>
 
 ---
