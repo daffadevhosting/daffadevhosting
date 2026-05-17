@@ -16,7 +16,7 @@ Masih pemula tapi terus belajar dan berkembang setiap hari 💻🌱
 
 <p align="center">
     <a href="https://github.com/denvercoder1/github-readme-streak-stats" title="Go to Source">
-      <img align="left" width=396 src="https://github-readme-streak-stats.herokuapp.com/?user=daffadevhosting&theme=react&border=61dafb&hide_border=true" alt="daffadev" />
+      <img align="center" width=396 src="https://github-readme-streak-stats.herokuapp.com/?user=daffadevhosting&theme=react&border=61dafb&hide_border=true" alt="daffadev" />
     </a>
 </p>
 
